@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
 import axios from 'axios';
 
 function Register() {
@@ -8,21 +8,51 @@ function Register() {
     name: '',
     email: '',
     password: '',
-    preferences: {
-      size: '',
-      style: '',
-      notes: ''
+    stylePreferences: '', // comma separated
+    measurements: {
+      height: '',
+      weight: '',
+      bust: '',
+      waist: '',
+      hips: ''
     }
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (Object.keys(formData.measurements).includes(name)) {
+      setFormData({ ...formData, measurements: { ...formData.measurements, [name]: value } });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
     try {
-      await axios.post('http://localhost:5000/api/users/register', formData);
-      navigate('/login');
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        stylePreferences: formData.stylePreferences.split(',').map(s => s.trim()).filter(Boolean),
+        measurements: {
+          height: Number(formData.measurements.height) || undefined,
+          weight: Number(formData.measurements.weight) || undefined,
+          bust: Number(formData.measurements.bust) || undefined,
+          waist: Number(formData.measurements.waist) || undefined,
+          hips: Number(formData.measurements.hips) || undefined
+        }
+      };
+      await axios.post('http://localhost:5000/api/auth/register', payload);
+      setSuccess('Registration successful! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (error) {
-      console.error('Registration failed:', error);
+      setError(error.response?.data?.message || 'Registration failed.');
     }
   };
 
@@ -32,6 +62,8 @@ function Register() {
         <Typography component="h1" variant="h5">
           Register
         </Typography>
+        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
@@ -41,7 +73,7 @@ function Register() {
             name="name"
             autoFocus
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={handleChange}
           />
           <TextField
             margin="normal"
@@ -51,7 +83,7 @@ function Register() {
             name="email"
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={handleChange}
           />
           <TextField
             margin="normal"
@@ -61,29 +93,56 @@ function Register() {
             label="Password"
             type="password"
             value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={handleChange}
           />
           <TextField
             margin="normal"
             fullWidth
-            label="Size Preference"
-            name="size"
-            value={formData.preferences.size}
-            onChange={(e) => setFormData({
-              ...formData,
-              preferences: { ...formData.preferences, size: e.target.value }
-            })}
+            name="stylePreferences"
+            label="Style Preferences (comma separated)"
+            value={formData.stylePreferences}
+            onChange={handleChange}
+          />
+          <Typography variant="subtitle1" sx={{ mt: 2 }}>Measurements (optional)</Typography>
+          <TextField
+            margin="normal"
+            fullWidth
+            name="height"
+            label="Height (cm)"
+            value={formData.measurements.height}
+            onChange={handleChange}
           />
           <TextField
             margin="normal"
             fullWidth
-            label="Style Preference"
-            name="style"
-            value={formData.preferences.style}
-            onChange={(e) => setFormData({
-              ...formData,
-              preferences: { ...formData.preferences, style: e.target.value }
-            })}
+            name="weight"
+            label="Weight (kg)"
+            value={formData.measurements.weight}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            name="bust"
+            label="Bust (cm)"
+            value={formData.measurements.bust}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            name="waist"
+            label="Waist (cm)"
+            value={formData.measurements.waist}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            name="hips"
+            label="Hips (cm)"
+            value={formData.measurements.hips}
+            onChange={handleChange}
           />
           <Button
             type="submit"

@@ -9,15 +9,22 @@ function Login() {
     password: ''
   });
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', formData);
+      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/clothes');
     } catch (error) {
-      console.error('Login failed:', error);
+      setError(error.response?.data?.message || 'Login failed.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -27,6 +34,7 @@ function Login() {
         <Typography component="h1" variant="h5">
           Login
         </Typography>
+        {error && <Box sx={{ width: '100%', mt: 2 }}><span style={{ color: 'red' }}>{error}</span></Box>}
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
@@ -55,8 +63,9 @@ function Login() {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={loading}
           >
-            Sign In
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
         </Box>
       </Box>
