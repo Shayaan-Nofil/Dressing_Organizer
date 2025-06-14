@@ -22,9 +22,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dressing_
 // Routes
 const clothingItemsRouter = require('./routes/clothingItems');
 const outfitsRouter = require('./routes/outfits');
+const notificationsRouter = require('./routes/notifications');
 
 app.use('/api/clothing-items', clothingItemsRouter);
 app.use('/api/outfits', outfitsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
