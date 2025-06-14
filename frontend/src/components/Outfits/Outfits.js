@@ -1,46 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import './Outfits.css';
+import { getOutfitSuggestions, getOutfitHistory, getAllOutfits } from '../../services/outfits';
+import { Box, Tabs, Tab, Typography, Grid, Card, CardContent, Button, CircularProgress } from '@mui/material';
 
 const Outfits = () => {
-  const [clothingItems, setClothingItems] = useState([]);
+  const [tab, setTab] = useState(0);
   const [outfits, setOutfits] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [newOutfit, setNewOutfit] = useState({
-    name: '',
-    occasion: '',
-    weather: '',
-    notes: '',
-    season: '',
-    style: '',
-  });
+  const [suggestions, setSuggestions] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
 
   useEffect(() => {
-    fetchClothingItems();
     fetchOutfits();
   }, []);
 
-  const fetchClothingItems = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/clothing-items');
-      const data = await response.json();
-      setClothingItems(data);
-    } catch (error) {
-      setClothingItems([]);
-    }
-  };
-
   const fetchOutfits = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/outfits');
-      const data = await response.json();
+      const data = await getAllOutfits();
       setOutfits(data);
     } catch (error) {
       setOutfits([]);
     }
+    setLoading(false);
+  };
+
+  const fetchSuggestions = async () => {
+    setLoading(true);
+    try {
+      const data = await getOutfitSuggestions();
+      setSuggestions(data);
+    } catch (error) {
+      setSuggestions([]);
+    }
+    setLoading(false);
+  };
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    try {
+      const data = await getOutfitHistory();
+      setHistory(data);
+    } catch (error) {
+      setHistory([]);
+    }
+    setLoading(false);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTab(newValue);
+    if (newValue === 1 && suggestions.length === 0) fetchSuggestions();
+    if (newValue === 2 && history.length === 0) fetchHistory();
   };
 
   const handleItemSelect = (itemId) => {
@@ -113,94 +125,84 @@ const Outfits = () => {
   };
 
   return (
-    <div className="outfits-container">
-      <div className="outfits-header">
-        <h2>Outfits</h2>
-        <button className="add-outfit-btn" onClick={() => { setShowAddForm(true); setMessage(null); }}>Create New Outfit</button>
-        <button className="suggest-outfit-btn" onClick={handleSuggestOutfit}>AI Suggest Outfit</button>
-      </div>
-
-      {message && (
-        <div style={{
-          margin: '1rem auto',
-          maxWidth: 600,
-          padding: '0.8rem 1.2rem',
-          borderRadius: 6,
-          background: messageType === 'success' ? '#e8f5e9' : '#ffebee',
-          color: messageType === 'success' ? '#256029' : '#b71c1c',
-          border: `1.5px solid ${messageType === 'success' ? '#a5d6a7' : '#ffcdd2'}`,
-          textAlign: 'center',
-          fontWeight: 500
-        }}>{message}</div>
-      )}
-
-      {showAddForm && (
-        <div className="add-outfit-form">
-          <h3>Create New Outfit</h3>
-          <form onSubmit={handleSubmit}>
-            <input type="text" name="name" value={newOutfit.name} onChange={handleInputChange} placeholder="Outfit Name" required />
-            <input type="text" name="occasion" value={newOutfit.occasion} onChange={handleInputChange} placeholder="Occasion" />
-            <input type="text" name="weather" value={newOutfit.weather} onChange={handleInputChange} placeholder="Weather" />
-            <input type="text" name="season" value={newOutfit.season} onChange={handleInputChange} placeholder="Season" />
-            <input type="text" name="style" value={newOutfit.style} onChange={handleInputChange} placeholder="Style" />
-            <textarea name="notes" value={newOutfit.notes} onChange={handleInputChange} placeholder="Notes" />
-            <div className="wardrobe-items-select">
-              <h4>Select Items:</h4>
-              <div className="wardrobe-items-list">
-                {clothingItems.map(item => (
-                  <div key={item._id} className={`wardrobe-item-card ${selectedItems.includes(item._id) ? 'selected' : ''}`} onClick={() => handleItemSelect(item._id)}>
-                    {item.image && (
-                      <img src={item.image.startsWith('http') ? item.image : `http://localhost:5000/${item.image}`} alt={item.name} />
-                    )}
-                    <div>{item.name}</div>
-                    <div className="item-type">{item.type}</div>
-                  </div>
+    <Box className="outfits-container" sx={{ mt: 4 }}>
+      <Tabs value={tab} onChange={handleTabChange} centered>
+        <Tab label="My Outfits" />
+        <Tab label="Suggestions" />
+        <Tab label="History & Analytics" />
+      </Tabs>
+      <Box sx={{ mt: 3 }}>
+        {tab === 0 && (
+          <>
+            <Typography variant="h5" gutterBottom>My Outfits</Typography>
+            {loading ? <CircularProgress /> : (
+              <Grid container spacing={2}>
+                {outfits.map((outfit) => (
+                  <Grid item xs={12} sm={6} md={4} key={outfit._id}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6">{outfit.name}</Typography>
+                        <Typography variant="body2">Occasion: {outfit.occasion}</Typography>
+                        <Typography variant="body2">Season: {outfit.season}</Typography>
+                        <Typography variant="body2">Weather: {outfit.weather}</Typography>
+                        <Typography variant="body2">Style: {outfit.style}</Typography>
+                        <Typography variant="body2">Notes: {outfit.notes}</Typography>
+                        <Typography variant="body2">Items: {outfit.items && outfit.items.map(i => i.name).join(', ')}</Typography>
+                        <Typography variant="body2">Rating: {outfit.rating || 'N/A'}</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
                 ))}
-              </div>
-            </div>
-            <div className="form-actions">
-              <button type="submit" className="submit-btn" disabled={loading || selectedItems.length === 0} style={{ opacity: loading || selectedItems.length === 0 ? 0.6 : 1 }}>
-                {loading ? 'Saving...' : 'Save Outfit'}
-              </button>
-              <button type="button" className="cancel-btn" onClick={() => { setShowAddForm(false); setMessage(null); }}>Cancel</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="outfits-list">
-        {outfits.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#888', width: '100%', marginTop: '2rem' }}>
-            No outfits yet. Start by creating your first outfit!
-          </div>
-        ) : (
-          outfits.map(outfit => (
-            <div key={outfit._id} className="outfit-card">
-              <h3>{outfit.name}</h3>
-              <div className="outfit-items">
-                {outfit.items && outfit.items.map(item => (
-                  <div key={item._id} className="outfit-item">
-                    {item.image && (
-                      <img src={item.image.startsWith('http') ? item.image : `http://localhost:5000/${item.image}`} alt={item.name} />
-                    )}
-                    <div>{item.name}</div>
-                    <div className="item-type">{item.type}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="outfit-details">
-                <span><strong>Occasion:</strong> {outfit.occasion}</span>
-                <span><strong>Weather:</strong> {outfit.weather}</span>
-                <span><strong>Season:</strong> {outfit.season}</span>
-                <span><strong>Style:</strong> {outfit.style}</span>
-                <span><strong>Notes:</strong> {outfit.notes}</span>
-              </div>
-            </div>
-          ))
+              </Grid>
+            )}
+          </>
         )}
-      </div>
-    </div>
+        {tab === 1 && (
+          <>
+            <Typography variant="h5" gutterBottom>Outfit Suggestions</Typography>
+            {loading ? <CircularProgress /> : suggestions.length === 0 ? <Typography>No suggestions available.</Typography> : (
+              <Grid container spacing={2}>
+                {suggestions.map((pair, idx) => (
+                  <Grid item xs={12} sm={6} md={4} key={idx}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="subtitle1">Suggestion {idx + 1}</Typography>
+                        <Typography variant="body2">
+                          {pair.map(item => item.name).join(' + ')}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </>
+        )}
+        {tab === 2 && (
+          <>
+            <Typography variant="h5" gutterBottom>Outfit History & Analytics</Typography>
+            {loading ? <CircularProgress /> : history.length === 0 ? <Typography>No history available.</Typography> : (
+              <Grid container spacing={2}>
+                {history.map((outfit, idx) => (
+                  <Grid item xs={12} sm={6} md={4} key={outfit.id || idx}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6">{outfit.name}</Typography>
+                        <Typography variant="body2">Items: {outfit.items && outfit.items.map(i => i.name).join(', ')}</Typography>
+                        <Typography variant="body2">Rating: {outfit.rating || 'N/A'}</Typography>
+                        <Typography variant="body2">Notes: {outfit.notes}</Typography>
+                        <Typography variant="body2">Created: {outfit.dateCreated ? new Date(outfit.dateCreated).toLocaleDateString() : 'N/A'}</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </>
+        )}
+      </Box>
+    </Box>
   );
 };
 
-export default Outfits; 
+export default Outfits;

@@ -121,4 +121,85 @@ router.patch('/:id/last-worn', async (req, res) => {
   }
 });
 
+// Add or update tags
+router.patch('/:id/tags', async (req, res) => {
+  try {
+    const item = await ClothingItem.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    item.tags = req.body.tags || [];
+    const updatedItem = await item.save();
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Mark/unmark as favorite
+router.patch('/:id/favorite', async (req, res) => {
+  try {
+    const item = await ClothingItem.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    item.favorite = req.body.favorite;
+    const updatedItem = await item.save();
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Get unused items (not worn for 30+ days)
+router.get('/unused', async (req, res) => {
+  try {
+    const threshold = new Date();
+    threshold.setDate(threshold.getDate() - 30);
+    const items = await ClothingItem.find({ $or: [ { lastWorn: { $lt: threshold } }, { lastWorn: null } ] });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get least-worn items (sorted by lastWorn asc)
+router.get('/least-worn', async (req, res) => {
+  try {
+    const items = await ClothingItem.find().sort({ lastWorn: 1 });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get wear frequency stats
+router.get('/stats/frequency', async (req, res) => {
+  try {
+    const items = await ClothingItem.find();
+    const stats = items.map(item => ({
+      id: item._id,
+      name: item.name,
+      lastWorn: item.lastWorn,
+      timesWorn: item.timesWorn || 0
+    }));
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Search/filter items
+router.get('/search', async (req, res) => {
+  try {
+    const query = {};
+    if (req.query.tags) query.tags = { $in: req.query.tags.split(',') };
+    if (req.query.color) query.color = req.query.color;
+    if (req.query.type) query.type = req.query.type;
+    if (req.query.category) query.category = req.query.category;
+    if (req.query.favorite) query.favorite = req.query.favorite === 'true';
+    if (req.query.lastWornBefore) query.lastWorn = { $lt: new Date(req.query.lastWornBefore) };
+    const items = await ClothingItem.find(query);
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router; 

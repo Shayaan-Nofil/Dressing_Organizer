@@ -48,6 +48,9 @@ const clothingItemSchema = new mongoose.Schema({
         type: Number
     },
     imageUrl: String,
+    tags: [{ type: String }],
+    favorite: { type: Boolean, default: false },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     tags: [String],
     dateAdded: {
         type: Date,

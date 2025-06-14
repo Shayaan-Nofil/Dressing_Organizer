@@ -20,3 +20,15 @@ export const deleteOutfit = async (outfitId) => {
   const response = await axios.delete(`${API_URL}/${outfitId}`, getAuthHeader());
   return response.data;
 };
+
+// Get outfit suggestions
+export const getOutfitSuggestions = async () => {
+  const response = await axios.get(`${API_URL}/suggestions`, getAuthHeader());
+  return response.data;
+};
+
+// Get outfit history/analytics
+export const getOutfitHistory = async () => {
+  const response = await axios.get(`${API_URL}/history`, getAuthHeader());
+  return response.data;
+};
