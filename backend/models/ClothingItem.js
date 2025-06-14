@@ -1,35 +1,60 @@
 const mongoose = require('mongoose');
 
 const clothingItemSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    name: {
+        type: String,
         required: true
     },
-    name: {
+    type: {
         type: String,
         required: true
     },
     category: {
         type: String,
-        enum: ['top', 'bottom', 'dress', 'outerwear', 'shoes', 'accessories'],
         required: true
     },
-    color: String,
-    brand: String,
-    size: String,
-    material: String,
+    color: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String
+    },
+    lastWorn: {
+        type: Date
+    },
+    notes: {
+        type: String
+    },
     season: {
-        type: [String],
-        enum: ['spring', 'summer', 'fall', 'winter']
+        type: String,
+        required: true
+    },
+    brand: {
+        type: String
+    },
+    size: {
+        type: String
+    },
+    condition: {
+        type: String,
+        enum: ['New', 'Like New', 'Good', 'Fair', 'Poor'],
+        default: 'New'
+    },
+    purchaseDate: {
+        type: Date
+    },
+    price: {
+        type: Number
     },
     imageUrl: String,
     tags: [String],
-    lastWorn: Date,
     dateAdded: {
         type: Date,
         default: Date.now
     }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('ClothingItem', clothingItemSchema);
