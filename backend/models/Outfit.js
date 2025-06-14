@@ -1,27 +1,55 @@
 const mongoose = require('mongoose');
 
 const outfitSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
     name: {
         type: String,
         required: true
     },
     items: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'ClothingItem'
+        ref: 'ClothingItem',
+        required: true
     }],
-    occasion: String,
-    weather: String,
+    occasion: {
+        type: String,
+        required: true
+    },
+    weather: {
+        type: String,
+        required: true
+    },
+    notes: {
+        type: String
+    },
+    lastWorn: {
+        type: Date
+    },
+    season: {
+        type: String,
+        required: true
+    },
+    style: {
+        type: String
+    },
+    rating: {
+        type: Number,
+        min: 1,
+        max: 5
+    },
+    image: {
+        type: String
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     dateCreated: {
         type: Date,
         default: Date.now
     },
-    dateScheduled: Date,
-    notes: String
+    dateScheduled: Date
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Outfit', outfitSchema);
