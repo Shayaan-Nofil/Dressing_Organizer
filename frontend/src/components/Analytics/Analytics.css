@@ -1,0 +1,159 @@
+.analytics-container {
+  padding: 2rem;
+  margin-top: 4rem;
+}
+
+.analytics-container h2 {
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.analytics-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.analytics-card h3 {
+  color: #333;
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #007bff;
+  text-align: center;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.category {
+  font-weight: 500;
+  color: #333;
+}
+
+.count {
+  color: #666;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 1rem;
+}
+
+.color-item {
+  text-align: center;
+}
+
+.color-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 0 auto 0.5rem;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.color-name {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.color-count {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.wear-count {
+  color: #666;
+}
+
+.seasonal-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.season-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-label {
+  width: 80px;
+  color: #666;
+}
+
+.bar-fill {
+  height: 20px;
+  background-color: #007bff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.bar-value {
+  width: 40px;
+  text-align: right;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: 1rem;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+} 
