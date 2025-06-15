@@ -27,6 +27,7 @@ const authRouter = require('./routes/auth');
 const analyticsRoutes = require('./routes/analytics');
 const activityRoutes = require('./routes/activity');
 const userRoutes = require('./routes/userRoutes');
+const socialRoutes = require('./routes/social');
 
 app.use('/api/user', userRoutes);
 app.use('/api/clothing-items', clothingItemsRouter);
@@ -35,6 +36,7 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/activity', activityRoutes);
+app.use('/api/social', socialRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

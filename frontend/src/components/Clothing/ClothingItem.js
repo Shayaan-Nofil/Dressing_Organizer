@@ -4,13 +4,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import EditIcon from '@mui/icons-material/Edit';
+import ShareIcon from '@mui/icons-material/Share';
 import { updateTags, updateFavorite, deleteItem } from '../../services/clothing';
 import { getImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
+import SocialSharingDialog from '../Social/SocialSharingDialog';
 
 function ClothingItem({ item, onUpdate }) {
   const [editingTags, setEditingTags] = useState(false);
   const [tagsInput, setTagsInput] = useState(item.tags ? item.tags.join(', ') : '');
   const [favorite, setFavorite] = useState(item.favorite || false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -60,6 +63,11 @@ function ClothingItem({ item, onUpdate }) {
             {item.name}
           </Typography>
           <Box>
+            <Tooltip title="Share Item">
+              <IconButton onClick={() => setShareDialogOpen(true)} color="primary" size="small">
+                <ShareIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip title={favorite ? 'Unmark Favorite' : 'Mark as Favorite'}>
               <IconButton onClick={handleFavoriteToggle} color={favorite ? 'warning' : 'default'} size="small">
                 {favorite ? <StarIcon /> : <StarBorderIcon />}
@@ -108,6 +116,13 @@ function ClothingItem({ item, onUpdate }) {
           )}
         </Box>
       </CardContent>
+      
+      <SocialSharingDialog
+        open={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+        type="item"
+        item={item}
+      />
     </Card>
   );
 }

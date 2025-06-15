@@ -65,3 +65,55 @@ exports.loginUser = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.updateUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const updates = req.body;
+    
+    // Remove sensitive fields that shouldn't be updated this way
+    delete updates.password;
+    delete updates._id;
+    delete updates.__v;
+    
+    // If email is being updated, check if it's already taken by another user
+    if (updates.email) {
+      const existingUser = await User.findOne({ 
+        email: updates.email, 
+        _id: { $ne: userId } 
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email already in use by another account' });
+      }
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};

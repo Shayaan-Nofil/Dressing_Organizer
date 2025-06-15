@@ -47,15 +47,24 @@ const clothingItemSchema = new mongoose.Schema({
     price: {
         type: Number
     },
-    imageUrl: String,
-    tags: [{ type: String }],
+    imageUrl: String,    tags: [{ type: String }],
     favorite: { type: Boolean, default: false },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // For consistency with other models
     tags: [String],
     dateAdded: {
         type: Date,
         default: Date.now
-    }
+    },
+    wearCount: { type: Number, default: 0 },
+    snoozeUnusedAlertUntil: { type: Date },
+    shares: [{
+        platform: { type: String, enum: ['instagram', 'facebook', 'twitter', 'pinterest', 'direct'] },
+        sharedAt: { type: Date, default: Date.now },
+        privacy: { type: String, enum: ['public', 'private', 'friends'], default: 'public' },
+        caption: String,
+        shareId: String
+    }]
 }, {
     timestamps: true
 });

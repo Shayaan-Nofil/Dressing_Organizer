@@ -1,10 +1,13 @@
-import React from 'react';
-import { Card, CardContent, CardMedia, Typography, IconButton, Box, Grid, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, CardMedia, Typography, IconButton, Box, Grid, Button, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ShareIcon from '@mui/icons-material/Share';
 import axios from 'axios';
 import { getImageUrl, getOutfitImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
+import SocialSharingDialog from '../Social/SocialSharingDialog';
 
 function OutfitItem({ outfit }) {
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -24,6 +27,11 @@ function OutfitItem({ outfit }) {
           {outfit.name}
         </Typography>
         <Box>
+          <Tooltip title="Share Outfit">
+            <IconButton onClick={() => setShareDialogOpen(true)} color="primary" size="small">
+              <ShareIcon />
+            </IconButton>
+          </Tooltip>
           <IconButton onClick={handleDelete} color="error" size="small">
             <DeleteIcon />
           </IconButton>
@@ -66,6 +74,19 @@ function OutfitItem({ outfit }) {
           </Typography>
         )}
       </CardContent>
+      
+      <SocialSharingDialog
+        open={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+        type="outfit"
+        outfit={{
+          id: outfit._id,
+          name: outfit.name,
+          occasion: outfit.occasion,
+          weather: outfit.weather,
+          items: outfit.items
+        }}
+      />
     </Card>
   );
 }

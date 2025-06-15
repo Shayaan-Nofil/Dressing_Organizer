@@ -47,10 +47,17 @@ const outfitSchema = new mongoose.Schema({
         ref: 'User'
     },
     dateCreated: {
-        type: Date,
-        default: Date.now
+        type: Date,        default: Date.now
     },
-    dateScheduled: Date
+    dateScheduled: Date,
+    shares: [{
+        platform: { type: String, enum: ['instagram', 'facebook', 'twitter', 'pinterest', 'direct'] },
+        sharedAt: { type: Date, default: Date.now },
+        privacy: { type: String, enum: ['public', 'private', 'friends'], default: 'public' },
+        caption: String,
+        shareId: String
+    }],
+    wearCount: { type: Number, default: 0 }
 }, {
     timestamps: true
 });

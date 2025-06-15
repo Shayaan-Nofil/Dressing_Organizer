@@ -49,6 +49,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import AddIcon from '@mui/icons-material/Add';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SecurityIcon from '@mui/icons-material/Security';
 
 // Styled components
 const DashboardCard = styled(Paper)(({ theme }) => ({
@@ -505,13 +507,22 @@ function Dashboard() {
                 variant="contained"
                 size="large"
                 startIcon={<SmartToyIcon />}
+                onClick={() => navigate('/ai-features')}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                AI Features Hub
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<SmartToyIcon />}
                 onClick={() => navigate('/wardrobe-assistant')}
                 sx={{ justifyContent: 'flex-start' }}
               >
                 Smart Wardrobe Assistant
               </Button>
               <Button
-                variant="contained"
+                variant="outlined"
                 size="large"
                 startIcon={<SmartToyIcon />}
                 onClick={() => navigate('/social-advisor')}
@@ -545,6 +556,24 @@ function Dashboard() {
                 sx={{ justifyContent: 'flex-start' }}
               >
                 Create Outfit
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<NotificationsIcon />}
+                onClick={() => navigate('/profile')}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                Profile & Notifications
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<SecurityIcon />}
+                onClick={() => navigate('/privacy')}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                Privacy Settings
               </Button>
             </Stack>
             
