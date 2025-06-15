@@ -5,6 +5,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import EditIcon from '@mui/icons-material/Edit';
 import { updateTags, updateFavorite, deleteItem } from '../../services/clothing';
+import { getImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
 
 function ClothingItem({ item, onUpdate }) {
   const [editingTags, setEditingTags] = useState(false);
@@ -50,7 +51,7 @@ function ClothingItem({ item, onUpdate }) {
       <CardMedia
         component="img"
         height="200"
-        image={item.imageUrl || 'https://via.placeholder.com/200'}
+        image={getImageUrl(item.image) || getPlaceholderImage(200, 200)}
         alt={item.name}
       />
       <CardContent>

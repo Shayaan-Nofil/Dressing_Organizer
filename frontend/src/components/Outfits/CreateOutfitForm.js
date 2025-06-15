@@ -13,6 +13,7 @@ import {
   Checkbox,
 } from '@mui/material';
 import axios from 'axios';
+import { getImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
 
 function CreateOutfitForm() {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ function CreateOutfitForm() {
     const fetchItems = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/items', {
+        const response = await axios.get('http://localhost:5000/api/clothing-items', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setAvailableItems(response.data);
@@ -43,8 +44,27 @@ function CreateOutfitForm() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/outfits', formData, {
-        headers: { Authorization: `Bearer ${token}` }
+      const data = new FormData();
+      // Adjust these fields as per your formData structure
+      data.append('name', formData.name);
+      data.append('occasion', formData.occasion);
+      data.append('weather', formData.weather);
+      data.append('season', formData.season);
+      data.append('style', formData.style);
+      data.append('notes', formData.notes);
+      // Append each itemId separately so backend gets an array
+      if (Array.isArray(formData.items)) {
+        formData.items.forEach(itemId => data.append('items', itemId));
+      }
+      // If you have an image upload field
+      if (formData.image) {
+        data.append('image', formData.image);
+      }
+      await axios.post('http://localhost:5000/api/outfits', data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+          // Do NOT set Content-Type manually; Axios will set it for FormData
+        }
       });
       navigate('/outfits');
     } catch (error) {
@@ -108,7 +128,7 @@ function CreateOutfitForm() {
                   <CardMedia
                     component="img"
                     sx={{ width: 100, height: 100, objectFit: 'cover' }}
-                    image={item.imageUrl || 'https://via.placeholder.com/100'}
+                    image={getImageUrl(item.image) || getPlaceholderImage(100, 100)}
                     alt={item.name}
                   />
                   <CardContent>

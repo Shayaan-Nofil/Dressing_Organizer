@@ -7,6 +7,7 @@ import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import ClothingList from './components/Clothing/ClothingList';
 import OutfitList from './components/Outfits/OutfitList';
+import Outfits from './components/Outfits/Outfits';
 import OutfitHistory from './components/Outfits/OutfitHistory';
 import Analytics from './components/Analytics/Analytics';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -58,7 +59,8 @@ function MainRoutes() {
         <Route path='add-clothing' element={<ProtectedRoute><AddClothingForm /></ProtectedRoute>} />
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/outfits" element={<ProtectedRoute><OutfitList /></ProtectedRoute>} />
+        <Route path="/outfits" element={<ProtectedRoute><Outfits /></ProtectedRoute>} />
+        <Route path="/outfitlist" element={<ProtectedRoute><OutfitList /></ProtectedRoute>} />
         <Route path="/outfit-history" element={<ProtectedRoute><OutfitHistory /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         <Route path="/create-outfit" element={<ProtectedRoute><CreateOutfitForm /></ProtectedRoute>} />

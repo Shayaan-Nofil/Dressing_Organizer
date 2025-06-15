@@ -76,7 +76,6 @@ function Navbar() {
             <>
               <Button color={location.pathname === '/' ? 'secondary' : 'inherit'} onClick={() => navigate('/')}>Dashboard</Button>
               <Button color={location.pathname === '/outfits' ? 'secondary' : 'inherit'} onClick={() => navigate('/outfits')}>Outfits</Button>
-              <Button color={location.pathname === '/outfit-history' ? 'secondary' : 'inherit'} onClick={() => navigate('/outfit-history')}>Outfit History</Button>
               <Button color={location.pathname === '/analytics' ? 'secondary' : 'inherit'} onClick={() => navigate('/analytics')}>Analytics</Button>
               <Button color={location.pathname === '/clothes' ? 'secondary' : 'inherit'} onClick={() => navigate('/clothes')}>My Clothes</Button>
               <Button color={location.pathname === '/profile' ? 'secondary' : 'inherit'} onClick={() => navigate('/profile')}>Profile</Button>

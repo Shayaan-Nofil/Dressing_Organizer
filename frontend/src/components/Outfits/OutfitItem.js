@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardMedia, Typography, IconButton, Box, Grid, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
+import { getImageUrl, getOutfitImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
 
 function OutfitItem({ outfit }) {
   const handleDelete = async () => {
@@ -49,7 +50,7 @@ function OutfitItem({ outfit }) {
                 <CardMedia
                   component="img"
                   height="100"
-                  image={item.imageUrl || 'https://via.placeholder.com/100'}
+                  image={getImageUrl(item.image) || getPlaceholderImage(100, 100)}
                   alt={item.name}
                 />
                 <CardContent>

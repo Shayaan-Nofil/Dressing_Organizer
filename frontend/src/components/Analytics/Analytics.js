@@ -22,11 +22,27 @@ const Analytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/analytics');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      const response = await fetch('http://localhost:5000/api/analytics', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       setAnalytics(data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      // Optionally set error state to show user feedback
+      // setError('Failed to load analytics. Please try again later.');
     }
   };
 

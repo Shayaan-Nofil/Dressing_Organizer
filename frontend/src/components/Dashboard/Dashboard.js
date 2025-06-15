@@ -29,6 +29,13 @@ import {
 import { styled } from '@mui/material/styles';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
+// Services
+import { getAllItems, getWearFrequencyStats } from '../../services/clothing';
+import { getAllOutfits, getOutfitSuggestions } from '../../services/outfits';
+
+// Utils
+import { getImageUrl, getOutfitImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
+
 // Icons
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import StyleIcon from '@mui/icons-material/Style';
@@ -127,8 +134,21 @@ const ActivityItem = styled(ListItem)(({ theme }) => ({
 }));
 
 function Dashboard() {
-  // Activities state
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState([]);
+  const [allItems, setAllItems] = useState([]);
+  const [allOutfits, setAllOutfits] = useState([]);
+  const [outfitSuggestions, setOutfitSuggestions] = useState([]);
+  const [wearStats, setWearStats] = useState(null);
+  
+  // Weather state (could be connected to real weather API later)
+  const [weather, setWeather] = useState({
+    temp: 36,
+    condition: 'Sunny',
+    humidity: 45,
+    icon: <WbSunnyIcon sx={{ fontSize: 40 }} />
+  });
 
   // --- Analytics State ---
   const [analytics, setAnalytics] = useState({
@@ -142,73 +162,125 @@ function Dashboard() {
     lifecycleRecommendations: []
   });
 
-  // Outfit suggestions derived from analytics
-  const outfitSuggestions = analytics.combinationHistory.length > 0 ? analytics.combinationHistory.map((combo, idx) => ({
-    id: idx + 1,
-    name: combo.items.join(' + '),
-    image: '', // Optionally map to an image if available
-    items: combo.items,
-    favorite: false,
-    lastWorn: combo.lastWorn ? new Date(combo.lastWorn).toLocaleDateString() : ''
+  // Fetch all data on component mount
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        // Fetch all data in parallel
+        const [itemsData, outfitsData, activitiesData, analyticsData, suggestionsData, statsData] = await Promise.allSettled([
+          getAllItems(),
+          getAllOutfits(),
+          fetch('http://localhost:5000/api/activity', {
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(res => res.json()),
+          fetch('http://localhost:5000/api/analytics', {
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(res => res.json()),
+          getOutfitSuggestions().catch(() => []), // Fallback to empty array if not implemented
+          getWearFrequencyStats().catch(() => null) // Fallback to null if not implemented
+        ]);
+
+        // Set data with fallbacks
+        setAllItems(itemsData.status === 'fulfilled' ? itemsData.value : []);
+        setAllOutfits(outfitsData.status === 'fulfilled' ? outfitsData.value : []);
+        setActivities(activitiesData.status === 'fulfilled' ? activitiesData.value : []);
+        setAnalytics(analyticsData.status === 'fulfilled' ? analyticsData.value : {
+          totalItems: 0,
+          categoryBreakdown: {},
+          colorBreakdown: {},
+          mostWornItems: [],
+          leastWornItems: [],
+          seasonalUsage: {},
+          combinationHistory: [],
+          lifecycleRecommendations: []
+        });
+        setOutfitSuggestions(suggestionsData.status === 'fulfilled' ? suggestionsData.value : []);
+        setWearStats(statsData.status === 'fulfilled' ? statsData.value : null);
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
+  // Calculate dynamic stats from real data
+  const calculateStats = () => {
+    const totalItems = allItems.length;
+    const totalOutfits = allOutfits.length;
+    
+    // Calculate category breakdown
+    const categoryBreakdown = allItems.reduce((acc, item) => {
+      acc[item.category] = (acc[item.category] || 0) + 1;
+      return acc;
+    }, {});
+    
+    // Find most worn items (if wearCount is available)
+    const mostWornItems = allItems
+      .filter(item => item.wearCount > 0)
+      .sort((a, b) => (b.wearCount || 0) - (a.wearCount || 0))
+      .slice(0, 3);
+    
+    // Get top category
+    const topCategory = Object.entries(categoryBreakdown)
+      .sort((a, b) => b[1] - a[1])[0];
+
+    return {
+      totalItems,
+      totalOutfits,
+      topCategory: topCategory ? topCategory[0] : 'N/A',
+      topCategoryCount: topCategory ? topCategory[1] : 0,
+      mostWornItem: mostWornItems[0] || null,
+      categoryBreakdown
+    };
+  };
+
+  const stats = calculateStats();
+
+  // Create dynamic outfit suggestions from real outfits
+  const dynamicOutfitSuggestions = allOutfits.length > 0 ? allOutfits.slice(0, 3).map((outfit, idx) => ({
+    id: outfit._id || idx + 1,
+    name: outfit.name || `Outfit ${idx + 1}`,
+    image: outfit.image || '',
+    items: outfit.items || [],
+    favorite: outfit.favorite || false,
+    lastWorn: outfit.lastWorn ? new Date(outfit.lastWorn).toLocaleDateString() : 'Never'
   })) : [];
 
-  // Fetch activities on mount
-  useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/activity', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        const data = await response.json();
-        setActivities(data);
-      } catch (error) {
-        console.error('Error fetching activities:', error);
-      }
-    };
-    fetchActivities();
-  }, []);
-
-  // Stats for dashboard
-  const stats = [
-    { label: 'Total Items', value: analytics.totalItems, color: '#3f51b5', icon: <CheckroomIcon />, increase: '' },
-    { label: 'Most Worn Item', value: analytics.mostWornItems[0]?.name || 'N/A', color: '#ff9800', icon: <FavoriteIcon />, increase: analytics.mostWornItems[0] ? `${analytics.mostWornItems[0].wearCount} wears` : '' },
-    { label: 'Top Category', value: Object.entries(analytics.categoryBreakdown).sort((a,b) => b[1]-a[1])[0]?.[0] || 'N/A', color: '#f50057', icon: <StyleIcon />, increase: '' }
+  // Dynamic stats array
+  const dynamicStatsArray = [
+    { 
+      label: 'Total Items', 
+      value: stats.totalItems, 
+      color: '#3f51b5', 
+      icon: <CheckroomIcon />, 
+      increase: `${stats.totalOutfits} outfits` 
+    },
+    { 
+      label: 'Most Worn Item', 
+      value: stats.mostWornItem?.name || 'N/A', 
+      color: '#ff9800', 
+      icon: <FavoriteIcon />, 
+      increase: stats.mostWornItem ? `${stats.mostWornItem.wearCount || 0} wears` : '' 
+    },
+    { 
+      label: 'Top Category', 
+      value: stats.topCategory, 
+      color: '#f50057', 
+      icon: <StyleIcon />, 
+      increase: stats.topCategoryCount > 0 ? `${stats.topCategoryCount} items` : '' 
+    }
   ];
-
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [weather, setWeather] = useState({
-    temp: 36,
-    condition: 'Sunny',
-    humidity: 45,
-    icon: <WbSunnyIcon sx={{ fontSize: 40 }} />
-  });
-
-  // Fetch analytics on mount
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/analytics', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        const data = await response.json();
-        setAnalytics(data);
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-      }
-    };
-    fetchAnalytics();
-  }, []);
-
-  // Simulate loading data
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
   
   // Function to handle quick actions
   const handleQuickAction = (action) => {
@@ -221,18 +293,15 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <>
-        <Container maxWidth="lg" sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <CircularProgress size={60} thickness={4} />
-          <Typography variant="h6" sx={{ mt: 3 }}>Loading your wardrobe...</Typography>
-        </Container>
-      </>
+      <Container maxWidth="lg" sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={60} thickness={4} />
+        <Typography variant="h6" sx={{ mt: 3 }}>Loading your wardrobe...</Typography>
+      </Container>
     );
   }
 
   return (
-    <>
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
 
       {/* Welcome Header */}
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column' }}>
@@ -255,10 +324,10 @@ function Dashboard() {
             <DashboardCard>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                 <Typography variant="h6" fontWeight="bold" color="primary">
-                  Today's Outfit Suggestion
+                  {dynamicOutfitSuggestions.length > 0 ? "Today's Outfit Suggestion" : "Get Started"}
                 </Typography>
                 <Chip 
-                  label="Perfect for today's weather" 
+                  label={dynamicOutfitSuggestions.length > 0 ? "Perfect for today's weather" : "Create your first outfit"} 
                   size="small" 
                   color="primary" 
                   icon={<WbSunnyIcon />} 
@@ -272,28 +341,28 @@ function Dashboard() {
                     <CardMedia
                       component="img"
                       height="240"
-                      image={outfitSuggestions[0]?.image || ''}
-                      alt={outfitSuggestions[0]?.name || 'Outfit'}
+                      image={getOutfitImageUrl(dynamicOutfitSuggestions[0]) || getPlaceholderImage(300, 240)}
+                      alt={dynamicOutfitSuggestions[0]?.name || 'Outfit'}
                       sx={{ objectFit: 'cover' }}
                     />
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                         <Typography variant="h6" component="div">
-                          {outfitSuggestions[0]?.name || 'Outfit'}
+                          {dynamicOutfitSuggestions[0]?.name || 'Create your first outfit!'}
                         </Typography>
                         <IconButton size="small" color="error">
                           <FavoriteIcon />
                         </IconButton>
                       </Box>
                       <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}>
-                        {outfitSuggestions[0]?.items?.map((item, index) => (
-                          <Chip key={index} label={item} size="small" variant="outlined" />
-                        ))}
+                        {dynamicOutfitSuggestions[0]?.items?.slice(0, 3).map((item, index) => (
+                          <Chip key={index} label={item.name || item} size="small" variant="outlined" />
+                        )) || <Chip label="No items yet" size="small" variant="outlined" />}
                       </Stack>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary">
                           <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'text-bottom' }} />
-                          Last worn: {outfitSuggestions[0]?.lastWorn || 'N/A'}
+                          Last worn: {dynamicOutfitSuggestions[0]?.lastWorn || 'Never'}
                         </Typography>
                         <Button 
                           size="small" 
@@ -313,7 +382,7 @@ function Dashboard() {
                       Alternative Options
                     </Typography>
                     
-                    {outfitSuggestions.slice(1, 3).map((outfit) => (
+                    {dynamicOutfitSuggestions.slice(1, 3).length > 0 ? dynamicOutfitSuggestions.slice(1, 3).map((outfit) => (
                       <Box 
                         key={outfit.id} 
                         sx={{
@@ -330,13 +399,13 @@ function Dashboard() {
                         <CardMedia
                           component="img"
                           sx={{ width: 80, height: 80, borderRadius: 1, objectFit: 'cover' }}
-                          image={outfit.image || ''}
+                          image={getOutfitImageUrl(outfit) || getPlaceholderImage(80, 80)}
                           alt={outfit.name || 'Outfit'}
                         />
                         <Box sx={{ display: 'flex', flexDirection: 'column', ml: 2, flexGrow: 1 }}>
                           <Typography variant="subtitle1">{outfit.name}</Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {outfit.items?.length} items
+                            {outfit.items?.length || 0} items
                           </Typography>
                           <Box sx={{ display: 'flex', mt: 'auto' }}>
                             <Button size="small" onClick={() => navigate('/outfits')}>View</Button>
@@ -346,7 +415,21 @@ function Dashboard() {
                           </Box>
                         </Box>
                       </Box>
-                    ))}
+                    )) : (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" color="text.secondary">
+                          No additional outfits yet. Create some outfits to see suggestions here!
+                        </Typography>
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          sx={{ mt: 1 }}
+                          onClick={() => navigate('/outfits')}
+                        >
+                          Create Outfit
+                        </Button>
+                      </Box>
+                    )}
                     
                     <Button 
                       variant="outlined" 
@@ -396,7 +479,7 @@ function Dashboard() {
               </Typography>
               
               <Stack spacing={2}>
-                {stats.map((stat, index) => (
+                {dynamicStatsArray.map((stat, index) => (
                   <StatsCard key={index} sx={{ backgroundColor: `${stat.color}15` }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Avatar sx={{ bgcolor: stat.color, width: 40, height: 40 }}>
@@ -563,25 +646,46 @@ function Dashboard() {
               <Box sx={{ mb: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="body2">Essentials</Typography>
-                  <Typography variant="body2" fontWeight="bold">85%</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    {stats.totalItems > 0 ? Math.min(100, Math.round((stats.totalItems / 20) * 100)) : 0}%
+                  </Typography>
                 </Box>
-                <LinearProgress variant="determinate" value={85} color="success" sx={{ height: 8, borderRadius: 4 }} />
+                <LinearProgress 
+                  variant="determinate" 
+                  value={stats.totalItems > 0 ? Math.min(100, Math.round((stats.totalItems / 20) * 100)) : 0} 
+                  color="success" 
+                  sx={{ height: 8, borderRadius: 4 }} 
+                />
               </Box>
               
               <Box sx={{ mb: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="body2">Seasonal Items</Typography>
-                  <Typography variant="body2" fontWeight="bold">60%</Typography>
+                  <Typography variant="body2">Outfits Created</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    {stats.totalOutfits > 0 ? Math.min(100, Math.round((stats.totalOutfits / 10) * 100)) : 0}%
+                  </Typography>
                 </Box>
-                <LinearProgress variant="determinate" value={60} color="primary" sx={{ height: 8, borderRadius: 4 }} />
+                <LinearProgress 
+                  variant="determinate" 
+                  value={stats.totalOutfits > 0 ? Math.min(100, Math.round((stats.totalOutfits / 10) * 100)) : 0} 
+                  color="primary" 
+                  sx={{ height: 8, borderRadius: 4 }} 
+                />
               </Box>
               
               <Box sx={{ mb: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="body2">Accessories</Typography>
-                  <Typography variant="body2" fontWeight="bold">40%</Typography>
+                  <Typography variant="body2">Category Coverage</Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    {Object.keys(stats.categoryBreakdown).length > 0 ? Math.min(100, Math.round((Object.keys(stats.categoryBreakdown).length / 8) * 100)) : 0}%
+                  </Typography>
                 </Box>
-                <LinearProgress variant="determinate" value={40} color="warning" sx={{ height: 8, borderRadius: 4 }} />
+                <LinearProgress 
+                  variant="determinate" 
+                  value={Object.keys(stats.categoryBreakdown).length > 0 ? Math.min(100, Math.round((Object.keys(stats.categoryBreakdown).length / 8) * 100)) : 0} 
+                  color="warning" 
+                  sx={{ height: 8, borderRadius: 4 }} 
+                />
               </Box>
               
               <Button 
@@ -598,7 +702,6 @@ function Dashboard() {
         </Grid>
       </Grid>
     </Container>
-    </>
   );
 }
 
