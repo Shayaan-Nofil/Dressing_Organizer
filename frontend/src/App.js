@@ -16,6 +16,8 @@ import Navbar from './components/Navigation/Navbar';
 import NotFound from './components/NotFound';
 import CreateOutfitForm from './components/Outfits/CreateOutfitForm';
 import AddClothingForm from './components/Clothing/AddClothingForm';
+import SmartWardrobeAssistant from './components/Wardrobe/SmartWardrobeAssistant';
+import SocialContextAdvisor from './components/Social/SocialContextAdvisor';
 
 const theme = createTheme({
   palette: {
@@ -60,6 +62,8 @@ function MainRoutes() {
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/outfits" element={<ProtectedRoute><Outfits /></ProtectedRoute>} />
+        <Route path="/wardrobe-assistant" element={<ProtectedRoute><SmartWardrobeAssistant /></ProtectedRoute>} />
+        <Route path="/social-advisor" element={<ProtectedRoute><SocialContextAdvisor /></ProtectedRoute>} />
         <Route path="/outfitlist" element={<ProtectedRoute><OutfitList /></ProtectedRoute>} />
         <Route path="/outfit-history" element={<ProtectedRoute><OutfitHistory /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

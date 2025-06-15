@@ -505,6 +505,24 @@ function Dashboard() {
                 variant="contained"
                 size="large"
                 startIcon={<SmartToyIcon />}
+                onClick={() => navigate('/wardrobe-assistant')}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                Smart Wardrobe Assistant
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<SmartToyIcon />}
+                onClick={() => navigate('/social-advisor')}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                Social Context Advisor
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<SmartToyIcon />}
                 onClick={() => navigate('/outfits')}
                 sx={{ justifyContent: 'flex-start' }}
               >
