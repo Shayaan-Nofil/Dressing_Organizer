@@ -153,6 +153,15 @@ function Register() {
             Register
           </Button>
         </Box>
+        <Button
+          fullWidth
+          variant="outlined"
+          color="primary"
+          sx={{ mt: 2 }}
+          onClick={() => navigate('/login')}
+        >
+          Already have an account? Login
+        </Button>
       </Box>
     </Container>
   );

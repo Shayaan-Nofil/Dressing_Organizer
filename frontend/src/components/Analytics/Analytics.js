@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
 import './Analytics.css';
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Legend } from 'recharts';
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState({
@@ -41,31 +44,44 @@ const Analytics = () => {
         {/* Category Breakdown */}
         <div className="analytics-card">
           <h3>Category Breakdown</h3>
-          <div className="breakdown-list">
-            {Object.entries(analytics.categoryBreakdown).map(([category, count]) => (
-              <div key={category} className="breakdown-item">
-                <span className="category">{category}</span>
-                <span className="count">{count}</span>
-              </div>
-            ))}
-          </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={Object.entries(analytics.categoryBreakdown || {}).map(([category, count]) => ({ name: category, value: count }))}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                fill="#8884d8"
+                label
+              >
+                {Object.entries(analytics.categoryBreakdown || {}).map(([category], idx) => (
+                  <Cell key={`cell-${category}`} fill={['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1', '#a4de6c', '#d0ed57'][idx % 7]} />
+                ))}
+              </Pie>
+              <RechartsTooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Color Breakdown */}
         <div className="analytics-card">
           <h3>Color Distribution</h3>
-          <div className="color-grid">
-            {Object.entries(analytics.colorBreakdown).map(([color, count]) => (
-              <div key={color} className="color-item">
-                <div 
-                  className="color-swatch"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="color-name">{color}</span>
-                <span className="color-count">{count}</span>
-              </div>
-            ))}
-          </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={Object.entries(analytics.colorBreakdown).map(([color, count]) => ({ color, count }))}>
+              <XAxis dataKey="color" />
+              <YAxis allowDecimals={false} />
+              <Bar dataKey="count" fill="#8884d8">
+                {Object.entries(analytics.colorBreakdown).map(([color], idx) => (
+                  <Cell key={`cell-bar-${color}`} fill={['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1', '#a4de6c', '#d0ed57'][idx % 7]} />
+                ))}
+              </Bar>
+              <RechartsTooltip />
+              <Legend />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Most Worn Items */}
@@ -97,18 +113,19 @@ const Analytics = () => {
         {/* Seasonal Usage */}
         <div className="analytics-card">
           <h3>Seasonal Usage</h3>
-          <div className="seasonal-chart">
-            {Object.entries(analytics.seasonalUsage).map(([season, count]) => (
-              <div key={season} className="season-bar">
-                <div className="bar-label">{season}</div>
-                <div 
-                  className="bar-fill"
-                  style={{ width: `${(count / analytics.totalItems) * 100}%` }}
-                />
-                <div className="bar-value">{count}</div>
-              </div>
-            ))}
-          </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={Object.entries(analytics.seasonalUsage).map(([season, count]) => ({ season, count }))}>
+              <XAxis dataKey="season" />
+              <YAxis allowDecimals={false} />
+              <Bar dataKey="count" fill="#ff8042">
+                {Object.entries(analytics.seasonalUsage).map(([season], idx) => (
+                  <Cell key={`cell-season-${season}`} fill={['#ff8042', '#8884d8', '#82ca9d', '#ffc658'][idx % 4]} />
+                ))}
+              </Bar>
+              <RechartsTooltip />
+              <Legend />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Combination History */}
@@ -131,8 +148,11 @@ const Analytics = () => {
           <h3>Clothing Lifecycle Insights</h3>
           <ul className="lifecycle-list">
             {analytics.lifecycleRecommendations.map(item => (
-              <li key={item._id}>
+              <li key={item._id} style={{ marginBottom: 8 }}>
                 <strong>{item.name}</strong>: {item.recommendation}
+                <div style={{ display: 'inline-block', marginLeft: 12 }}>
+                  <ActionButtons itemId={item._id} />
+                </div>
               </li>
             ))}
           </ul>
@@ -140,6 +160,46 @@ const Analytics = () => {
 
       </div>
     </div>
+  );
+};
+
+// ActionButtons component for lifecycle actions
+const ActionButtons = ({ itemId }) => {
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleAction = async (action) => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/clothing-items/${itemId}/lifecycle`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ action })
+      });
+      if (!res.ok) throw new Error('Failed to update.');
+      setDone(true);
+    } catch (e) {
+      setError('Failed!');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (done) return <span style={{ color: 'green', marginLeft: 8 }}>✔️ Updated</span>;
+  return (
+    <Stack direction="row" spacing={1}>
+      <Button size="small" variant="outlined" color="success" disabled={loading} onClick={() => handleAction('donate')}>Donate</Button>
+      <Button size="small" variant="outlined" color="warning" disabled={loading} onClick={() => handleAction('restyle')}>Restyle</Button>
+      <Button size="small" variant="outlined" color="error" disabled={loading} onClick={() => handleAction('replace')}>Replace</Button>
+      {loading && <span style={{ marginLeft: 4 }}>...</span>}
+      {error && <span style={{ color: 'red', marginLeft: 4 }}>{error}</span>}
+    </Stack>
   );
 };
 

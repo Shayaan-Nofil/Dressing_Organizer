@@ -27,7 +27,10 @@ import {
   Fade
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import MenuItem from '@mui/material/MenuItem';
 
 // Icons
 import AddIcon from '@mui/icons-material/Add';
@@ -129,18 +132,10 @@ const ActivityItem = styled(ListItem)(({ theme }) => ({
   }
 }));
 
-// Mock data
-
-
-const mockActivities = [
-  { id: 1, action: 'Created new outfit', name: 'Summer Casual', time: '2 hours ago', icon: <StyleIcon color="primary" /> },
-  { id: 2, action: 'Added new item', name: 'Blue Striped Shirt', time: 'Yesterday', icon: <CheckroomIcon color="secondary" /> },
-  { id: 3, action: 'Wore outfit', name: 'Business Meeting', time: '3 days ago', icon: <StarIcon color="warning" /> },
-  { id: 4, action: 'Added to favorites', name: 'Workout Ready', time: '1 week ago', icon: <FavoriteIcon color="error" /> }
-];
-
-
 function Dashboard() {
+  // Activities state
+  const [activities, setActivities] = useState([]);
+
   // --- Analytics State ---
   const [analytics, setAnalytics] = useState({
     totalItems: 0,
@@ -162,6 +157,23 @@ function Dashboard() {
     favorite: false,
     lastWorn: combo.lastWorn ? new Date(combo.lastWorn).toLocaleDateString() : ''
   })) : [];
+
+  // Fetch activities on mount
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/activity', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        const data = await response.json();
+        setActivities(data);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      }
+    };
+    fetchActivities();
+  }, []);
 
   // Stats for dashboard
   const stats = [
@@ -207,23 +219,27 @@ function Dashboard() {
   // Function to handle quick actions
   const handleQuickAction = (action) => {
     if (action === 'create-outfit') {
-      navigate('/outfits/create');
+      navigate('/create-outfit');
     } else if (action === 'add-item') {
-      navigate('/wardrobe/add');
+      navigate('/clothes');
     }
   };
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress size={60} thickness={4} />
-        <Typography variant="h6" sx={{ mt: 3 }}>Loading your wardrobe...</Typography>
-      </Container>
+      <>
+        <Container maxWidth="lg" sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <CircularProgress size={60} thickness={4} />
+          <Typography variant="h6" sx={{ mt: 3 }}>Loading your wardrobe...</Typography>
+        </Container>
+      </>
     );
   }
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
+    <>
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
+
       {/* Welcome Header */}
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column' }}>
         <Fade in={true} timeout={800}>
@@ -432,33 +448,71 @@ function Dashboard() {
               </Box>
               
               <List sx={{ width: '100%' }}>
-                {mockActivities.map((activity) => (
-                  <ActivityItem key={activity.id}>
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: 'background.paper', color: 'primary.main' }}>
-                        {activity.icon}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle2">
-                          {activity.action}: <strong>{activity.name}</strong>
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                          <AccessTimeIcon sx={{ fontSize: 12, mr: 0.5 }} />
-                          {activity.time}
-                        </Typography>
-                      }
-                    />
-                    <ListItemSecondaryAction>
-                      <IconButton edge="end" size="small">
-                        <MoreVertIcon fontSize="small" />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ActivityItem>
-                ))}
+                {activities.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                    No recent activities.
+                  </Typography>
+                ) : (
+                  activities.map((activity) => {
+                    let icon = <StyleIcon color="primary" />;
+                    let actionText = '';
+                    if (activity.type === 'outfit_created') {
+                      icon = <StyleIcon color="primary" />;
+                      actionText = 'Created new outfit';
+                    } else if (activity.type === 'outfit_worn') {
+                      icon = <StarIcon color="warning" />;
+                      actionText = 'Wore outfit';
+                    } else if (activity.type === 'item_added') {
+                      icon = <CheckroomIcon color="secondary" />;
+                      actionText = 'Added new item';
+                    } else if (activity.type === 'outfit_deleted') {
+                      icon = <StyleIcon color="error" />;
+                      actionText = 'Deleted outfit';
+                    } else {
+                      actionText = activity.message;
+                    }
+                    // Format time
+                    const date = new Date(activity.timestamp);
+                    const now = new Date();
+                    const diffMs = now - date;
+                    let timeAgo = '';
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffHours = Math.floor(diffMs / 3600000);
+                    const diffDays = Math.floor(diffMs / 86400000);
+                    if (diffMins < 1) timeAgo = 'just now';
+                    else if (diffMins < 60) timeAgo = `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+                    else if (diffHours < 24) timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                    else timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+                    return (
+                      <ActivityItem key={activity._id}>
+                        <ListItemAvatar>
+                          <Avatar sx={{ bgcolor: 'background.paper', color: 'primary.main' }}>
+                            {icon}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Typography variant="subtitle2">
+                              {actionText}{activity.relatedId ? ':' : ''} <strong>{activity.message.replace(/^(Created new outfit:|Wore outfit:|Deleted outfit:)/, '').trim()}</strong>
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                              <AccessTimeIcon sx={{ fontSize: 12, mr: 0.5 }} />
+                              {timeAgo}
+                            </Typography>
+                          }
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton edge="end" size="small">
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ActivityItem>
+                    );
+                  })
+                )}
               </List>
               
               <Button 
@@ -540,16 +594,17 @@ function Dashboard() {
                 variant="text" 
                 fullWidth 
                 sx={{ mt: 3 }}
-                onClick={() => navigate('/wardrobe')}
+                onClick={() => navigate('/outfits')}
                 endIcon={<ArrowForwardIcon />}
               >
-                Manage Wardrobe
+                Manage Outfits
               </Button>
             </DashboardCard>
           </Zoom>
         </Grid>
       </Grid>
     </Container>
+    </>
   );
 }
 

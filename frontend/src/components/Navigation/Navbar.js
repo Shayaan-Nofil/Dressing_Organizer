@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, Badge, IconButton, Menu, MenuItem, CircularProgress, Tooltip } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getNotifications, markNotificationRead } from '../../services/notifications';
+
+import { useAuth } from '../../context/AuthContext';
 
 function Navbar() {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem('token');
+  const location = useLocation();
+  const { user, logout } = useAuth();
+  const isAuthenticated = !!user;
 
   // Notification State
   const [anchorEl, setAnchorEl] = useState(null);
@@ -52,7 +56,7 @@ function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -70,8 +74,12 @@ function Navbar() {
         <Box>
           {isAuthenticated ? (
             <>
-              <Button color="inherit" onClick={() => navigate('/clothes')}>My Clothes</Button>
-              <Button color="inherit" onClick={() => navigate('/outfits')}>My Outfits</Button>
+              <Button color={location.pathname === '/' ? 'secondary' : 'inherit'} onClick={() => navigate('/')}>Dashboard</Button>
+              <Button color={location.pathname === '/outfits' ? 'secondary' : 'inherit'} onClick={() => navigate('/outfits')}>Outfits</Button>
+              <Button color={location.pathname === '/outfit-history' ? 'secondary' : 'inherit'} onClick={() => navigate('/outfit-history')}>Outfit History</Button>
+              <Button color={location.pathname === '/analytics' ? 'secondary' : 'inherit'} onClick={() => navigate('/analytics')}>Analytics</Button>
+              <Button color={location.pathname === '/clothes' ? 'secondary' : 'inherit'} onClick={() => navigate('/clothes')}>My Clothes</Button>
+              <Button color={location.pathname === '/profile' ? 'secondary' : 'inherit'} onClick={() => navigate('/profile')}>Profile</Button>
               <Tooltip title="Notifications">
                 <IconButton color="inherit" onClick={handleBellClick} sx={{ ml: 1 }}>
                   <Badge badgeContent={unreadCount} color="secondary">
@@ -112,8 +120,8 @@ function Navbar() {
             </>
           ) : (
             <>
-              <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>
-              <Button color="inherit" onClick={() => navigate('/register')}>Register</Button>
+              <Button color={location.pathname === '/login' ? 'secondary' : 'inherit'} onClick={() => navigate('/login')}>Login</Button>
+              <Button color={location.pathname === '/register' ? 'secondary' : 'inherit'} onClick={() => navigate('/register')}>Register</Button>
             </>
           )}
         </Box>

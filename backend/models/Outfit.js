@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const outfitSchema = new mongoose.Schema({
-    name: {
+    name: { 
         type: String,
         required: true
     },
@@ -24,6 +24,9 @@ const outfitSchema = new mongoose.Schema({
     lastWorn: {
         type: Date
     },
+    wearHistory: [{
+        type: Date
+    }],
     season: {
         type: String,
         required: true

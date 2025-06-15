@@ -106,20 +106,10 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Update last worn date
-router.patch('/:id/last-worn', async (req, res) => {
-  try {
-    const outfit = await Outfit.findById(req.params.id);
-    if (!outfit) {
-      return res.status(404).json({ message: 'Outfit not found' });
-    }
-    outfit.lastWorn = new Date();
-    const updatedOutfit = await outfit.save();
-    res.json(updatedOutfit);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+const outfitController = require('../controllers/outfitController');
+
+// Mark outfit as worn (update lastWorn and wearHistory)
+router.patch('/:id/mark-worn', outfitController.markOutfitWorn);
 
 // Get outfits by occasion
 router.get('/occasion/:occasion', async (req, res) => {

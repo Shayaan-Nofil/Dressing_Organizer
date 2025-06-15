@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, IconButton, Box, Grid } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, IconButton, Box, Grid, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
@@ -22,9 +22,24 @@ function OutfitItem({ outfit }) {
         <Typography variant="h6" component="div">
           {outfit.name}
         </Typography>
-        <IconButton onClick={handleDelete} color="error" size="small">
-          <DeleteIcon />
-        </IconButton>
+        <Box>
+          <IconButton onClick={handleDelete} color="error" size="small">
+            <DeleteIcon />
+          </IconButton>
+          <Button onClick={async () => {
+            try {
+              const token = localStorage.getItem('token');
+              await axios.patch(`http://localhost:5000/api/outfits/${outfit._id}/mark-worn`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              window.location.reload();
+            } catch (error) {
+              console.error('Error marking as worn:', error);
+            }
+          }} color="success" size="small" sx={{ ml: 1 }}>
+            Mark as Worn
+          </Button>
+        </Box>
       </Box>
       <CardContent>
         <Grid container spacing={2}>

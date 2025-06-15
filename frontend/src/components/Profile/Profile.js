@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Container, 
   Typography, 
@@ -56,31 +57,50 @@ function a11yProps(index) {
   };
 }
 
-function Profile() {
 
+function Profile() {
+  const { user } = useAuth();
   const [tabValue, setTabValue] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Mock user data
-  const [userData, setUserData] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@example.com',
-    joinDate: 'January 15, 2023',
-    measurements: {
-      height: 175, // cm
-      weight: 68, // kg
-      bust: 92, // cm
-      waist: 76, // cm
-      hips: 94, // cm
-    },
-    preferences: {
-      style: ['Casual', 'Minimalist', 'Streetwear'],
-      colors: ['Blue', 'Black', 'White', 'Grey'],
-      brands: ['Zara', 'Uniqlo', 'H&M', 'Levi\'s']
-    }
-  });
+  const [userData, setUserData] = useState(null);
+  const [editData, setEditData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [editData, setEditData] = useState({ ...userData });
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5000/api/user/me', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        if (!res.ok) {
+          let errorText = '';
+          try {
+            errorText = await res.text();
+          } catch {}
+          console.error('Profile fetch error:', res.status, errorText);
+          throw new Error(`Failed to fetch user info (status ${res.status}): ${errorText}`);
+        }
+        const data = await res.json();
+        setUserData(data);
+        setEditData(data);
+      } catch (err) {
+        setError('Could not load user info. ' + (err.message || ''));
+        setUserData(user ? { name: user.name, email: user.email } : null);
+        setEditData(user ? { name: user.name, email: user.email } : null);
+        // Also log error for debugging
+        console.error('Profile fetch exception:', err);
+      
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+    // eslint-disable-next-line
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -99,6 +119,104 @@ function Profile() {
   const handleCancel = () => {
     setIsEditing(false);
   };
+
+  // Helper: get initials
+  const getInitials = (name) => {
+    if (!name) return '';
+    const parts = name.split(' ');
+    return parts.map(p => p[0]).join('').toUpperCase();
+  };
+
+  // Render loading/error states
+  if (loading) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h6">Loading profile...</Typography>
+      </Container>
+    );
+  }
+  if (error) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h6" color="error">{error}</Typography>
+      </Container>
+    );
+  }
+
+  if (!userData) return null;
+
+  // Nicer profile layout
+  return (
+    <Container maxWidth="sm" sx={{ mt: 6 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+        <Grid container spacing={3} alignItems="center">
+          <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Avatar sx={{ width: 90, height: 90, bgcolor: 'primary.main', fontSize: 36 }}>
+              {getInitials(userData.name || userData.email)}
+            </Avatar>
+          </Grid>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="h5" fontWeight="bold" gutterBottom>
+              {userData.name || 'User'}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" gutterBottom>
+              {userData.email}
+            </Typography>
+            {userData.joinDate && (
+              <Typography variant="body2" color="text.secondary">
+                Joined: {userData.joinDate}
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+        <Divider sx={{ my: 3 }} />
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Measurements</Typography>
+            {userData.measurements ? (
+              <List dense>
+                {Object.entries(userData.measurements).map(([k, v]) => (
+                  <ListItem key={k}>
+                    <ListItemText primary={k.charAt(0).toUpperCase() + k.slice(1)} secondary={v + (k === 'height' ? ' cm' : k === 'weight' ? ' kg' : '')} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Typography variant="body2" color="text.secondary">No measurements saved.</Typography>
+            )}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Preferences</Typography>
+            {userData.preferences ? (
+              <>
+                <Typography variant="body2" fontWeight="bold">Styles:</Typography>
+                <Box sx={{ mb: 1 }}>
+                  {userData.preferences.style && userData.preferences.style.map((s, i) => (
+                    <Chip key={i} label={s} sx={{ mr: 1, mb: 1 }} />
+                  ))}
+                </Box>
+                <Typography variant="body2" fontWeight="bold">Colors:</Typography>
+                <Box sx={{ mb: 1 }}>
+                  {userData.preferences.colors && userData.preferences.colors.map((c, i) => (
+                    <Chip key={i} label={c} sx={{ mr: 1, mb: 1 }} />
+                  ))}
+                </Box>
+                <Typography variant="body2" fontWeight="bold">Brands:</Typography>
+                <Box>
+                  {userData.preferences.brands && userData.preferences.brands.map((b, i) => (
+                    <Chip key={i} label={b} sx={{ mr: 1, mb: 1 }} />
+                  ))}
+                </Box>
+              </>
+            ) : (
+              <Typography variant="body2" color="text.secondary">No preferences saved.</Typography>
+            )}
+          </Grid>
+        </Grid>
+        {/* Optionally, add edit button here if you want to enable editing */}
+      </Paper>
+    </Container>
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

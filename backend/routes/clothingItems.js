@@ -202,4 +202,9 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// PATCH /:id/lifecycle - Lifecycle action (donate, restyle, replace)
+const auth = require('../middleware/authMiddleware');
+const { lifecycleAction } = require('../controllers/itemController');
+router.patch('/:id/lifecycle', auth, lifecycleAction);
+
 module.exports = router; 

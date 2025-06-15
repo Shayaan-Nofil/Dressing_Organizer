@@ -12,7 +12,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dressing_organizer', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dressing-organizer', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -24,13 +24,17 @@ const clothingItemsRouter = require('./routes/clothingItems');
 const outfitsRouter = require('./routes/outfits');
 const notificationsRouter = require('./routes/notifications');
 const authRouter = require('./routes/auth');
-const analyticsRouter = require('./routes/analytics');
+const analyticsRoutes = require('./routes/analytics');
+const activityRoutes = require('./routes/activity');
+const userRoutes = require('./routes/userRoutes');
 
+app.use('/api/user', userRoutes);
 app.use('/api/clothing-items', clothingItemsRouter);
 app.use('/api/outfits', outfitsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/analytics', analyticsRouter);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/activity', activityRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

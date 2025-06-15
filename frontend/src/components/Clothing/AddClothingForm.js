@@ -37,7 +37,7 @@ function AddClothingForm() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/items', formData, {
+      await axios.post('http://localhost:5000/api/clothing-items', formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/clothes');
