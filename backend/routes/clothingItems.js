@@ -26,6 +26,25 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Search/filter items
+router.get('/search', async (req, res) => {
+  try {
+    const query = {};
+    if (req.query.tags) query.tags = { $in: req.query.tags.split(',') };
+    if (req.query.color) query.color = req.query.color;
+    if (req.query.type) query.type = req.query.type;
+    if (req.query.category) query.category = req.query.category;
+    if (req.query.favorite) query.favorite = req.query.favorite === 'true';
+    if (req.query.lastWornBefore) query.lastWorn = { $lt: new Date(req.query.lastWornBefore) };
+    console.log('ClothingItem /search QUERY:', query, 'REQ:', req.query);
+    const items = await ClothingItem.find(query);
+    res.json(items);
+  } catch (err) {
+    console.error('Error in /search endpoint:', err.stack);
+    res.status(500).json({ message: err.message, query: query, reqQuery: req.query });
+  }
+});
+
 // Get one clothing item
 router.get('/:id', async (req, res) => {
   try {
@@ -180,23 +199,6 @@ router.get('/stats/frequency', async (req, res) => {
       timesWorn: item.timesWorn || 0
     }));
     res.json(stats);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Search/filter items
-router.get('/search', async (req, res) => {
-  try {
-    const query = {};
-    if (req.query.tags) query.tags = { $in: req.query.tags.split(',') };
-    if (req.query.color) query.color = req.query.color;
-    if (req.query.type) query.type = req.query.type;
-    if (req.query.category) query.category = req.query.category;
-    if (req.query.favorite) query.favorite = req.query.favorite === 'true';
-    if (req.query.lastWornBefore) query.lastWorn = { $lt: new Date(req.query.lastWornBefore) };
-    const items = await ClothingItem.find(query);
-    res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
