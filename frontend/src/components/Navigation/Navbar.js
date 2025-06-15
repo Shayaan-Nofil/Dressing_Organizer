@@ -332,8 +332,8 @@ function Navbar() {
                     mb: 1,
                     cursor: 'pointer',
                     ...(location.pathname === item.path && {
-                      background: gradients.primary,
-                      color: 'white',
+                      background: 'rgba(59, 130, 246, 0.12)', // light blue background
+                      color: modernBlue.primary,
                       boxShadow: `0 4px 12px ${modernBlue.primary}30`,
                     }),
                     '&:hover': {
@@ -346,7 +346,7 @@ function Navbar() {
                   }}
                 >
                   <ListItemIcon sx={{ 
-                    color: location.pathname === item.path ? 'white' : 'inherit',
+                    color: location.pathname === item.path ? modernBlue.primary : 'inherit',
                     minWidth: 40
                   }}>
                     <item.icon />

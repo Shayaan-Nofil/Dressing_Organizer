@@ -277,6 +277,12 @@ function CreateOutfitForm() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g., Summer Casual, Business Meeting, Date Night"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        minHeight: 80,
+                        alignItems: 'center',
+                      }
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -284,10 +290,17 @@ function CreateOutfitForm() {
                     fullWidth
                     label="Notes & Styling Tips"
                     multiline
-                    rows={4}
+                    rows={6}
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     placeholder="Add any notes about styling, occasions, or special instructions..."
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        maxHeight: 80,
+                        alignItems: 'flex-start',
+                        minWidth: 400,
+                      }
+                    }}
                   />
                 </Grid>
               </Grid>
