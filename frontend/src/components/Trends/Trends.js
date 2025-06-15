@@ -1,7 +1,105 @@
 import React, { useState, useEffect } from 'react';
-import './Trends.css';
+import {
+  Container,
+  Typography,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Paper,
+  Chip,
+  Stack,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  CircularProgress,
+  Alert
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { getWearFrequencyStats, getAllItems } from '../../services/clothing';
 import { getImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
+import {
+  ModernCard,
+  ModernButton,
+  modernBlue,
+  gradients,
+  responsiveContainer,
+  responsiveTypography,
+  responsiveSpacing,
+  shadows
+} from '../../theme/modernDesign';
+import {
+  TrendingUp as TrendingUpIcon,
+  Style as StyleIcon,
+  AutoAwesome as SparkleIcon,
+  CheckCircle as CheckIcon,
+  Brightness5 as SunIcon,
+  AcUnit as SnowIcon
+} from '@mui/icons-material';
+
+// Styled Components
+const TrendsContainer = styled(Container)(({ theme }) => ({
+  ...responsiveContainer(theme),
+  ...responsiveSpacing.sectionPadding,
+  minHeight: 'calc(100vh - 100px)',
+}));
+
+const HeaderSection = styled(Box)(({ theme }) => ({
+  textAlign: 'center',
+  marginBottom: theme.spacing(5),
+}));
+
+const TrendCard = styled(ModernCard)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  position: 'relative',
+  '&:before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    background: gradients.primary,
+  }
+}));
+
+const SeasonalCard = styled(ModernCard)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  background: `linear-gradient(135deg, ${modernBlue.primary}15, ${modernBlue.accent}15)`,
+}));
+
+const TrendImage = styled(CardMedia)(({ theme }) => ({
+  height: 200,
+  position: 'relative',
+  overflow: 'hidden',
+  '&:after': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%)',
+  }
+}));
+
+const TipChip = styled(Chip)(({ theme }) => ({
+  background: gradients.accent,
+  color: 'white',
+  fontWeight: 500,
+  fontSize: '0.75rem',
+  '&:hover': {
+    background: gradients.primary,
+  }
+}));
 
 const Trends = () => {
   const [trends] = useState([
@@ -92,97 +190,200 @@ const Trends = () => {
 
     fetchAnalytics();
   }, []);
-
   return (
-    <div className="trends-container">
-      <h2>Daily Dressing Trends</h2>
-      <div className="trends-grid">
-        {trends.map((trend, idx) => (
-          <div className="trend-card" key={idx}>
-            <img src={trend.image} alt={trend.title} className="trend-img" />
-            <div className="trend-content">
-              <h3>{trend.title}</h3>
-              <p>{trend.description}</p>
-              <ul className="trend-tips">
-                {trend.tips.map((tip, i) => <li key={i}>{tip}</li>)}
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>
+    <TrendsContainer maxWidth="lg">
+      {/* Header Section */}
+      <HeaderSection>
+        <TrendingUpIcon sx={{ fontSize: '4rem', color: modernBlue.primary, mb: 2 }} />
+        <Typography variant="h3" sx={{ ...responsiveTypography.hero, mb: 1 }}>
+          Fashion Trends & Insights
+        </Typography>
+        <Typography variant="body1" color="textSecondary">
+          Discover the latest trends and get personalized style recommendations
+        </Typography>
+      </HeaderSection>
 
-      <h2>Seasonal Recommendations</h2>
-      <div className="trends-grid">
-        {seasonalRecommendations.map((rec, idx) => (
-          <div className="trend-card" key={idx}>
-            <img src={rec.image} alt={rec.title} className="trend-img" />
-            <div className="trend-content">
-              <h3>{rec.title}</h3>
-              <p>{rec.description}</p>
-              <ul className="trend-combos">
-                {rec.combos.map((combo, i) => <li key={i}>{combo}</li>)}
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>      <h2>Analytics & Insights</h2>
-      {loading ? (
-        <div>Loading analytics...</div>
-      ) : (
-        <div className="analytics-section">
-          <div className="analytics-card">
-            <h3>Most Worn Items</h3>
-            <div className="wear-frequency-grid">
-              {analytics.wearFrequency.map((item, idx) => (
-                <div key={item._id || idx} className="wear-frequency-item">
-                  <img 
-                    src={getImageUrl(item.image) || getPlaceholderImage(60, 60)} 
-                    alt={item.name}
-                    className="wear-frequency-img"
+      {/* Current Trends Section */}
+      <Box sx={{ mb: 6 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+          <SparkleIcon sx={{ color: modernBlue.primary, fontSize: '2rem' }} />
+          <Typography variant="h4" sx={{ ...responsiveTypography.title }}>
+            Trending Now
+          </Typography>
+        </Box>
+        
+        <Grid container spacing={4}>
+          {trends.map((trend, idx) => (
+            <Grid item xs={12} md={6} lg={4} key={idx}>
+              <TrendCard>
+                <TrendImage
+                  image={trend.image}
+                  title={trend.title}
+                />
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <Typography variant="h6" sx={{ ...responsiveTypography.subtitle, mb: 2 }}>
+                    {trend.title}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+                    {trend.description}
+                  </Typography>
+                  
+                  <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+                    Style Tips:
+                  </Typography>
+                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    {trend.tips.map((tip, i) => (
+                      <TipChip key={i} label={tip} size="small" icon={<CheckIcon />} />
+                    ))}
+                  </Stack>
+                </CardContent>
+              </TrendCard>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      {/* Seasonal Recommendations Section */}
+      <Box sx={{ mb: 6 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+          <StyleIcon sx={{ color: modernBlue.primary, fontSize: '2rem' }} />
+          <Typography variant="h4" sx={{ ...responsiveTypography.title }}>
+            Seasonal Recommendations
+          </Typography>
+        </Box>
+        
+        <Grid container spacing={4}>
+          {seasonalRecommendations.map((rec, idx) => (
+            <Grid item xs={12} md={6} key={idx}>
+              <SeasonalCard>
+                <Box sx={{ position: 'relative' }}>
+                  <TrendImage
+                    image={rec.image}
+                    title={rec.title}
                   />
-                  <div className="wear-frequency-info">
-                    <strong>{item.name}</strong>
-                    <span>{item.timesWorn || 0} wears</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="analytics-card">
-            <h3>Combination History</h3>
-            <ul>
-              {analytics.combinationHistory.length > 0 ? (
-                analytics.combinationHistory.map((combo, idx) => (
-                  <li key={idx}>{combo.date}: {combo.items.join(' + ')} (Rating: {combo.rating}/5)</li>
-                ))
-              ) : (
-                <li>No combination history available yet</li>
-              )}
-            </ul>
-          </div>
-          <div className="analytics-card">
-            <h3>Clothing Lifecycle Insights</h3>
-            <div className="lifecycle-grid">
-              {analytics.lifecycle.map((item, idx) => (
-                <div key={idx} className="lifecycle-item">
-                  <img 
-                    src={getImageUrl(item.image) || getPlaceholderImage(50, 50)} 
-                    alt={item.name}
-                    className="lifecycle-img"
-                  />
-                  <div className="lifecycle-info">
-                    <strong>{item.name}</strong>
-                    <span>{item.wears} wears</span>
-                    <small>{item.recommendation}</small>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+                  <Box sx={{ 
+                    position: 'absolute', 
+                    top: 16, 
+                    right: 16,
+                    background: 'rgba(255,255,255,0.9)',
+                    borderRadius: 2,
+                    p: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5
+                  }}>
+                    {rec.season === 'Summer' ? <SunIcon /> : <SnowIcon />}
+                    <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                      {rec.season}
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <Typography variant="h6" sx={{ ...responsiveTypography.subtitle, mb: 2 }}>
+                    {rec.title}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+                    {rec.description}
+                  </Typography>
+                  
+                  <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
+                    Outfit Combinations:
+                  </Typography>
+                  <List dense>
+                    {rec.combos.map((combo, i) => (
+                      <ListItem key={i} sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: 32 }}>
+                          <CheckIcon sx={{ color: modernBlue.primary, fontSize: '1rem' }} />
+                        </ListItemIcon>
+                        <ListItemText 
+                          primary={combo} 
+                          primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardContent>
+              </SeasonalCard>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      {/* Analytics & Insights Section */}
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+          <TrendingUpIcon sx={{ color: modernBlue.primary, fontSize: '2rem' }} />
+          <Typography variant="h4" sx={{ ...responsiveTypography.title }}>
+            Your Style Analytics
+          </Typography>
+        </Box>
+        
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <ModernCard sx={{ p: 4 }}>
+                <Typography variant="h6" sx={{ mb: 3 }}>
+                  Most Worn Items
+                </Typography>
+                <Grid container spacing={3}>
+                  {analytics.wearFrequency.length > 0 ? (
+                    analytics.wearFrequency.map((item, idx) => (
+                      <Grid item xs={6} sm={4} md={3} key={item._id || idx}>
+                        <Box sx={{ 
+                          textAlign: 'center',
+                          p: 2,
+                          borderRadius: 2,
+                          background: 'rgba(59, 130, 246, 0.05)',
+                          border: '1px solid rgba(59, 130, 246, 0.1)'
+                        }}>
+                          <Box sx={{ 
+                            width: 80, 
+                            height: 80, 
+                            borderRadius: 2, 
+                            overflow: 'hidden',
+                            mx: 'auto',
+                            mb: 2
+                          }}>
+                            <img 
+                              src={getImageUrl(item.image) || getPlaceholderImage(80, 80)} 
+                              alt={item.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          </Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                            {item.name}
+                          </Typography>
+                          <Chip 
+                            label={`${item.wearCount} times`} 
+                            size="small"
+                            sx={{ 
+                              background: gradients.primary,
+                              color: 'white',
+                              fontWeight: 600
+                            }}
+                          />
+                        </Box>
+                      </Grid>
+                    ))
+                  ) : (
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center', py: 4 }}>
+                        No wear data available yet. Start tracking your outfits to see insights!
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </ModernCard>
+            </Grid>
+          </Grid>
+        )}
+      </Box>    </TrendsContainer>
   );
 };
 
-export default Trends; 
+export default Trends;

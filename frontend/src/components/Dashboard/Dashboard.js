@@ -52,49 +52,71 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SecurityIcon from '@mui/icons-material/Security';
 
-// Styled components
+// Styled components - Modern, minimalistic design
 const DashboardCard = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
+  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.9)',
+  backdropFilter: 'blur(20px)',
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
   padding: theme.spacing(3),
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
   overflow: 'hidden',
-  borderRadius: 16,
-  boxShadow: '0 8px 40px -12px rgba(0,0,0,0.1)',
-  transition: 'transform 0.3s, box-shadow 0.3s',
+  borderRadius: 24,
+  boxShadow: theme.palette.mode === 'dark' 
+    ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+    : '0 8px 32px rgba(0, 0, 0, 0.08)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 16px 70px -12.125px rgba(0,0,0,0.2)'
+    transform: 'translateY(-8px)',
+    boxShadow: theme.palette.mode === 'dark' 
+      ? '0 20px 40px rgba(0, 0, 0, 0.4)' 
+      : '0 20px 40px rgba(0, 0, 0, 0.12)',
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 1)',
   }
 }));
 
 const QuickActionButton = styled(Button)(({ theme }) => ({
-  borderRadius: 8,
+  borderRadius: 16,
   padding: theme.spacing(1.5, 3),
-  fontWeight: 'bold',
+  fontWeight: 600,
   textTransform: 'none',
-  boxShadow: '0 4px 10px rgba(0,0,0,0.07)',
-  transition: 'transform 0.2s',
+  fontSize: '0.95rem',
+  border: 'none',
+  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+  color: 'white',
+  boxShadow: `0 8px 24px ${theme.palette.primary.main}40`,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 15px rgba(0,0,0,0.1)'
+    transform: 'translateY(-3px)',
+    boxShadow: `0 12px 32px ${theme.palette.primary.main}50`,
+    background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
   }
 }));
 
 const StatsCard = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: 12,
+  padding: theme.spacing(3),
+  borderRadius: 20,
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'space-between',
-  boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-  transition: 'all 0.3s',
+  justifyContent: 'center',
+  background: theme.palette.mode === 'dark' 
+    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))' 
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4))',
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+  boxShadow: theme.palette.mode === 'dark' 
+    ? '0 4px 20px rgba(0, 0, 0, 0.2)' 
+    : '0 4px 20px rgba(0, 0, 0, 0.06)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  height: '100%',
+  minHeight: 120,
   '&:hover': {
-    transform: 'scale(1.03)',
-    boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+    transform: 'translateY(-4px) scale(1.02)',
+    boxShadow: theme.palette.mode === 'dark' 
+      ? '0 8px 30px rgba(0, 0, 0, 0.3)' 
+      : '0 8px 30px rgba(0, 0, 0, 0.1)',
   }
 }));
 
@@ -102,49 +124,81 @@ const WeatherIcon = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: 60,
-  height: 60,
-  borderRadius: '50%',
-  backgroundColor: theme.palette.primary.light,
-  color: theme.palette.primary.contrastText,
-  marginBottom: theme.spacing(2)
+  width: 80,
+  height: 80,
+  borderRadius: 24,
+  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1))',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  color: 'white',
+  marginBottom: theme.spacing(2),
+  '& .MuiSvgIcon-root': {
+    fontSize: '2.5rem'
+  }
 }));
 
 const OutfitCard = styled(Card)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  borderRadius: 12,
+  borderRadius: 20,
   overflow: 'hidden',
-  boxShadow: '0 5px 15px rgba(0,0,0,0.08)',
-  transition: 'transform 0.3s',
+  background: theme.palette.mode === 'dark' 
+    ? 'rgba(255, 255, 255, 0.02)' 
+    : 'rgba(255, 255, 255, 0.9)',
+  backdropFilter: 'blur(20px)',
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+  boxShadow: theme.palette.mode === 'dark' 
+    ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+    : '0 8px 32px rgba(0, 0, 0, 0.08)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
     transform: 'translateY(-8px)',
-    boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+    boxShadow: theme.palette.mode === 'dark' 
+      ? '0 20px 40px rgba(0, 0, 0, 0.4)' 
+      : '0 20px 40px rgba(0, 0, 0, 0.12)',
   }
 }));
 
 const ActivityItem = styled(ListItem)(({ theme }) => ({
-  padding: theme.spacing(1.5, 2),
-  borderRadius: 8,
-  marginBottom: theme.spacing(1),
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-  transition: 'all 0.2s',
+  padding: theme.spacing(2, 2.5),
+  borderRadius: 16,
+  marginBottom: theme.spacing(1.5),
+  background: theme.palette.mode === 'dark' 
+    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))' 
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4))',
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+  boxShadow: theme.palette.mode === 'dark' 
+    ? '0 4px 20px rgba(0, 0, 0, 0.2)' 
+    : '0 4px 20px rgba(0, 0, 0, 0.06)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-    transform: 'translateX(5px)'
+    transform: 'translateX(8px)',
+    boxShadow: theme.palette.mode === 'dark' 
+      ? '0 8px 30px rgba(0, 0, 0, 0.3)' 
+      : '0 8px 30px rgba(0, 0, 0, 0.1)',
   }
 }));
 
-
-
 const WeatherCard = styled(Box)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)',
+  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   color: 'white',
-  padding: theme.spacing(3),
-  borderRadius: 16,
-  textAlign: 'center'
+  padding: theme.spacing(4),
+  borderRadius: 24,
+  textAlign: 'center',
+  position: 'relative',
+  overflow: 'hidden',
+  boxShadow: '0 20px 40px rgba(102, 126, 234, 0.3)',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.2), transparent 50%)',
+    pointerEvents: 'none'
+  }
 }));
 
 const StatsItem = styled(Box)(({ theme }) => ({
@@ -334,21 +388,76 @@ function Dashboard() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
-      {/* Welcome Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-          Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}!
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
-          Here's your wardrobe overview for today
-        </Typography>
-      </Box>
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: (theme) => theme.palette.mode === 'dark' 
+        ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+        : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: (theme) => theme.palette.mode === 'dark'
+          ? 'radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1), transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1), transparent 50%)'
+          : 'radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.05), transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.05), transparent 50%)',
+        pointerEvents: 'none'
+      }
+    }}>
+      <Container maxWidth="xl" sx={{ pt: 6, pb: 8, position: 'relative', zIndex: 1 }}>
+        {/* Welcome Header */}
+        <Box sx={{ 
+          mb: 6, 
+          textAlign: 'center',
+          background: (theme) => theme.palette.mode === 'dark' 
+            ? 'rgba(255, 255, 255, 0.03)' 
+            : 'rgba(255, 255, 255, 0.7)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: 4,
+          p: 4,
+          border: (theme) => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+          boxShadow: (theme) => theme.palette.mode === 'dark' 
+            ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.08)',
+        }}>
+          <Typography 
+            variant="h3" 
+            component="h1" 
+            fontWeight={700} 
+            gutterBottom
+            sx={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              mb: 2
+            }}
+          >
+            Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}!
+          </Typography>
+          <Typography 
+            variant="h6" 
+            color="text.secondary"
+            sx={{ fontWeight: 400, opacity: 0.8 }}
+          >
+            Here's your wardrobe overview for today
+          </Typography>
+        </Box>
 
-      <Grid container spacing={3}>
-        {/* Weather Card */}
-        <Grid item xs={12} md={4}>
-          <WeatherCard>
+        {/* Main Content Container - Centered and Width-Matched */}
+        <Box sx={{ 
+          maxWidth: '1200px', 
+          mx: 'auto', 
+          width: '100%',
+          px: { xs: 2, sm: 3, md: 0 }
+        }}>
+        <Grid container spacing={3}>
+          {/* Weather Card */}
+          <Grid item xs={12} md={4}>
+              <WeatherCard>
             {weatherLoading ? (
               <CircularProgress color="inherit" />
             ) : (
@@ -410,54 +519,120 @@ function Dashboard() {
         {/* Wardrobe Stats */}
         <Grid item xs={12} md={8}>
           <DashboardCard>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
+            <Typography 
+              variant="h5" 
+              fontWeight={700} 
+              gutterBottom
+              sx={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 3
+              }}
+            >
               Wardrobe Overview
             </Typography>
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
               <Grid item xs={6} sm={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Avatar sx={{ bgcolor: 'primary.main', mx: 'auto', mb: 1 }}>
-                    <CheckroomIcon />
+                <StatsCard>
+                  <Avatar sx={{ 
+                    bgcolor: 'transparent',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    width: 56, 
+                    height: 56,
+                    mb: 2,
+                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
+                  }}>
+                    <CheckroomIcon sx={{ fontSize: 28 }} />
                   </Avatar>
-                  <Typography variant="h4" fontWeight="bold">{stats.totalItems}</Typography>
-                  <Typography variant="body2" color="text.secondary">Items</Typography>
-                </Box>
+                  <Typography variant="h3" fontWeight={800} sx={{ color: 'primary.main', mb: 0.5 }}>
+                    {stats.totalItems}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    Items
+                  </Typography>
+                </StatsCard>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Avatar sx={{ bgcolor: 'secondary.main', mx: 'auto', mb: 1 }}>
-                    <StyleIcon />
+                <StatsCard>
+                  <Avatar sx={{ 
+                    bgcolor: 'transparent',
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    width: 56, 
+                    height: 56,
+                    mb: 2,
+                    boxShadow: '0 8px 24px rgba(240, 147, 251, 0.3)'
+                  }}>
+                    <StyleIcon sx={{ fontSize: 28 }} />
                   </Avatar>
-                  <Typography variant="h4" fontWeight="bold">{stats.totalOutfits}</Typography>
-                  <Typography variant="body2" color="text.secondary">Outfits</Typography>
-                </Box>
+                  <Typography variant="h3" fontWeight={800} sx={{ color: 'secondary.main', mb: 0.5 }}>
+                    {stats.totalOutfits}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    Outfits
+                  </Typography>
+                </StatsCard>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Avatar sx={{ bgcolor: 'warning.main', mx: 'auto', mb: 1 }}>
-                    <FavoriteIcon />
+                <StatsCard>
+                  <Avatar sx={{ 
+                    bgcolor: 'transparent',
+                    background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                    width: 56, 
+                    height: 56,
+                    mb: 2,
+                    boxShadow: '0 8px 24px rgba(252, 182, 159, 0.3)'
+                  }}>
+                    <FavoriteIcon sx={{ fontSize: 28, color: '#d84315' }} />
                   </Avatar>
-                  <Typography variant="h4" fontWeight="bold">{stats.favoriteItems}</Typography>
-                  <Typography variant="body2" color="text.secondary">Favorites</Typography>
-                </Box>
+                  <Typography variant="h3" fontWeight={800} sx={{ color: 'warning.main', mb: 0.5 }}>
+                    {stats.favoriteItems}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    Favorites
+                  </Typography>
+                </StatsCard>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Avatar sx={{ bgcolor: 'success.main', mx: 'auto', mb: 1 }}>
-                    <TrendingUpIcon />
+                <StatsCard>
+                  <Avatar sx={{ 
+                    bgcolor: 'transparent',
+                    background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                    width: 56, 
+                    height: 56,
+                    mb: 2,
+                    boxShadow: '0 8px 24px rgba(168, 237, 234, 0.3)'
+                  }}>
+                    <TrendingUpIcon sx={{ fontSize: 28, color: '#2e7d32' }} />
                   </Avatar>
-                  <Typography variant="h4" fontWeight="bold">{stats.categories}</Typography>
-                  <Typography variant="body2" color="text.secondary">Categories</Typography>
-                </Box>
+                  <Typography variant="h3" fontWeight={800} sx={{ color: 'success.main', mb: 0.5 }}>
+                    {stats.categories}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    Categories
+                  </Typography>
+                </StatsCard>
               </Grid>
             </Grid>
           </DashboardCard>
         </Grid>
 
         {/* Recent Outfits */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <DashboardCard>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
+            <Typography 
+              variant="h5" 
+              fontWeight={700} 
+              gutterBottom
+              sx={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 3
+              }}
+            >
               Recent Outfits
             </Typography>
             {allOutfits.length > 0 ? (
@@ -496,89 +671,242 @@ function Dashboard() {
           </DashboardCard>
         </Grid>
 
-        {/* Quick Actions */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
+        {/* Quick Actions - Full Width Horizontal Layout */}
+        <Grid item xs={12}>
+          <DashboardCard sx={{ 
+            py: 4, 
+            minHeight: 'auto',
+            height: 'auto'
+          }}>
+            <Typography 
+              variant="h5" 
+              fontWeight={700} 
+              gutterBottom
+              sx={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                mb: 4,
+              }}
+            >
               Quick Actions
             </Typography>
-            <Stack spacing={2}>
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<SmartToyIcon />}
-                onClick={() => navigate('/ai-features')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                AI Features Hub
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<SmartToyIcon />}
-                onClick={() => navigate('/wardrobe-assistant')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Smart Wardrobe Assistant
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<SmartToyIcon />}
-                onClick={() => navigate('/social-advisor')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Social Context Advisor
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<SmartToyIcon />}
-                onClick={() => navigate('/outfits')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Generate AI Outfit
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/clothes')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Add New Item
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<StyleIcon />}
-                onClick={() => navigate('/outfits')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Create Outfit
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<NotificationsIcon />}
-                onClick={() => navigate('/profile')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Profile & Notifications
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<SecurityIcon />}
-                onClick={() => navigate('/privacy')}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                Privacy Settings
-              </Button>
-            </Stack>
+            
+            <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
+              {/* Column 1 */}
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Stack spacing={2}>
+                  <QuickActionButton
+                    variant="contained"
+                    size="large"
+                    startIcon={<SmartToyIcon />}
+                    onClick={() => navigate('/ai-features')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }}
+                  >
+                    AI Features Hub
+                  </QuickActionButton>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<SmartToyIcon />}
+                    onClick={() => navigate('/wardrobe-assistant')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Smart Assistant
+                  </Button>
+                </Stack>
+              </Grid>
+              
+              {/* Column 2 */}
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Stack spacing={2}>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<SmartToyIcon />}
+                    onClick={() => navigate('/social-advisor')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Social Advisor
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<SmartToyIcon />}
+                    onClick={() => navigate('/outfits')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Generate Outfit
+                  </Button>
+                </Stack>
+              </Grid>
+              
+              {/* Column 3 */}
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Stack spacing={2}>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<AddIcon />}
+                    onClick={() => navigate('/clothes')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Add New Item
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<StyleIcon />}
+                    onClick={() => navigate('/outfits')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Create Outfit
+                  </Button>
+                </Stack>
+              </Grid>
+              
+              {/* Column 4 */}
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Stack spacing={2}>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<NotificationsIcon />}
+                    onClick={() => navigate('/profile')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Profile
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<SecurityIcon />}
+                    onClick={() => navigate('/privacy')}
+                    fullWidth
+                    sx={{ 
+                      justifyContent: 'flex-start',
+                      borderRadius: 4,
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      minHeight: 56,
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.2)'
+                      }
+                    }}
+                  >
+                    Privacy Settings
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
             
             {stats.recentlyAdded > 0 && (
-              <Alert severity="info" sx={{ mt: 2 }}>
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  mt: 4,
+                  borderRadius: 3,
+                  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))',
+                  border: '1px solid rgba(102, 126, 234, 0.2)',
+                  '& .MuiAlert-icon': {
+                    color: 'primary.main'
+                  }
+                }}
+              >
                 You've added {stats.recentlyAdded} new item{stats.recentlyAdded > 1 ? 's' : ''} this week!
               </Alert>
             )}
@@ -592,17 +920,32 @@ function Dashboard() {
           </DashboardCard>
         </Grid>
       </Grid>
+      </Box>
 
       {/* Floating Action Button for Quick Add */}
       <Fab
         color="primary"
         aria-label="add"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        sx={{ 
+          position: 'fixed', 
+          bottom: 24, 
+          right: 24,
+          borderRadius: 4,
+          width: 64,
+          height: 64,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
+          '&:hover': {
+            transform: 'scale(1.1)',
+            boxShadow: '0 12px 40px rgba(102, 126, 234, 0.5)',
+          }
+        }}
         onClick={() => navigate('/clothes')}
       >
-        <AddIcon />
+        <AddIcon sx={{ fontSize: 28 }} />
       </Fab>
-    </Container>
+      </Container>
+    </Box>
   );
 }
 

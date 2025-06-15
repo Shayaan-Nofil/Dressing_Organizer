@@ -20,8 +20,12 @@ import {
   IconButton,
   Chip,
   Alert,
-  Snackbar
+  Snackbar,
+  Card,
+  CardContent,
+  Stack
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { 
   Person as PersonIcon, 
   Email as EmailIcon, 
@@ -30,9 +34,23 @@ import {
   Edit as EditIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-  Notifications as NotificationsIcon
+  Notifications as NotificationsIcon,
+  AccountCircle as AccountIcon,
+  Security as SecurityIcon,
+  Palette as StyleIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import {
+  ModernCard,
+  ModernButton,
+  ModernAvatar,
+  modernBlue,
+  gradients,
+  responsiveContainer,
+  responsiveTypography,
+  responsiveSpacing,
+  shadows
+} from '../../theme/modernDesign';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

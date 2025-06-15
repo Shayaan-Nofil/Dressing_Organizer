@@ -15,9 +15,92 @@ import {
   CircularProgress, 
   Alert, 
   Typography, 
-  Box
+  Box,
+  TextField,
+  Chip,
+  Stack
 } from '@mui/material';
-import { Refresh as RefreshIcon, Favorite as FavoriteIcon } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import { 
+  Refresh as RefreshIcon, 
+  Favorite as FavoriteIcon,
+  AutoAwesome as MagicIcon,
+  Tune as TuneIcon,
+  Save as SaveIcon
+} from '@mui/icons-material';
+import { 
+  ModernCard, 
+  ModernButton, 
+  modernBlue, 
+  gradients,
+  responsiveTypography,
+  responsiveSpacing,
+  shadows
+} from '../../theme/modernDesign';
+
+// Styled Components
+const GeneratorContainer = styled(Box)(({ theme }) => ({
+  ...responsiveSpacing.sectionPadding,
+}));
+
+const FilterSection = styled(ModernCard)(({ theme }) => ({
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(3),
+  background: gradients.primary,
+  color: 'white',
+  '& .MuiFormControl-root': {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 12,
+    '& .MuiInputLabel-root': {
+      color: 'rgba(255, 255, 255, 0.8)',
+    },
+    '& .MuiSelect-root': {
+      color: 'white',
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+    }
+  }
+}));
+
+const GenerateButton = styled(ModernButton)(({ theme }) => ({
+  background: 'rgba(255, 255, 255, 0.2)',
+  color: 'white',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
+  '&:hover': {
+    background: 'rgba(255, 255, 255, 0.3)',
+    transform: 'translateY(-3px)',
+  }
+}));
+
+const OutfitResultCard = styled(ModernCard)(({ theme }) => ({
+  marginTop: theme.spacing(3),
+  overflow: 'visible',
+}));
+
+const ClothingItemCard = styled(Card)(({ theme }) => ({
+  borderRadius: 16,
+  overflow: 'hidden',
+  boxShadow: theme.palette.mode === 'dark' ? shadows.smallDark : shadows.small,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    transform: 'translateY(-4px) scale(1.02)',
+    boxShadow: theme.palette.mode === 'dark' ? shadows.mediumDark : shadows.medium,
+  }
+}));
+
+const OutfitPreview = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  background: gradients.accent,
+  color: 'white',
+  borderRadius: 20,
+  marginBottom: theme.spacing(3),
+  textAlign: 'center',
+}));
 
 const OutfitGenerator = ({ onSaveOutfit }) => {
   const [items, setItems] = useState([]);
@@ -140,52 +223,69 @@ const OutfitGenerator = ({ onSaveOutfit }) => {
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>AI Outfit Generator</Typography>
+    <GeneratorContainer>
+      {/* Header Section */}
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <MagicIcon sx={{ fontSize: '3rem', color: modernBlue.primary, mb: 2 }} />
+        <Typography variant="h4" sx={{ ...responsiveTypography.title, mb: 1 }}>
+          AI Outfit Generator
+        </Typography>
+        <Typography variant="body1" color="textSecondary">
+          Let AI create perfect outfits based on your preferences and wardrobe
+        </Typography>
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 3 }}>
+          {error}
+        </Alert>
+      )}
+      
+      {/* Filter Section */}
+      <FilterSection>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+          <TuneIcon sx={{ fontSize: '1.5rem' }} />
+          <Typography variant="h6" sx={{ ...responsiveTypography.subtitle }}>
+            Customize Your Outfit
+          </Typography>
+        </Box>
         
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth size="small" margin="normal">
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth>
               <InputLabel>Occasion</InputLabel>
               <Select
                 value={filters.occasion}
                 label="Occasion"
                 onChange={(e) => setFilters({...filters, occasion: e.target.value})}
               >
-                <MenuItem value="casual">Casual</MenuItem>
-                <MenuItem value="business">Business</MenuItem>
-                <MenuItem value="formal">Formal</MenuItem>
-                <MenuItem value="sport">Sport</MenuItem>
+                <MenuItem value="casual">🏠 Casual</MenuItem>
+                <MenuItem value="business">💼 Business</MenuItem>
+                <MenuItem value="formal">🎩 Formal</MenuItem>
+                <MenuItem value="sport">🏃 Sport</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth size="small" margin="normal">
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth>
               <InputLabel>Weather</InputLabel>
               <Select
                 value={filters.weather}
                 label="Weather"
                 onChange={(e) => setFilters({...filters, weather: e.target.value})}
               >
-                <MenuItem value="hot">Hot</MenuItem>
-                <MenuItem value="warm">Warm</MenuItem>
-                <MenuItem value="moderate">Moderate</MenuItem>
-                <MenuItem value="cool">Cool</MenuItem>
-                <MenuItem value="cold">Cold</MenuItem>
+                <MenuItem value="hot">☀️ Hot</MenuItem>
+                <MenuItem value="warm">🌤️ Warm</MenuItem>
+                <MenuItem value="moderate">⛅ Moderate</MenuItem>
+                <MenuItem value="cool">🌥️ Cool</MenuItem>
+                <MenuItem value="cold">❄️ Cold</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth size="small" margin="normal">
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth>
               <InputLabel>Style (Optional)</InputLabel>
               <Select
                 value={filters.style}
@@ -196,78 +296,97 @@ const OutfitGenerator = ({ onSaveOutfit }) => {
                 <MenuItem value="">
                   <em>Any style</em>
                 </MenuItem>
-                <MenuItem value="minimalist">Minimalist</MenuItem>
-                <MenuItem value="streetwear">Streetwear</MenuItem>
-                <MenuItem value="classic">Classic</MenuItem>
-                <MenuItem value="Fancy">Fancy</MenuItem>
+                <MenuItem value="minimalist">✨ Minimalist</MenuItem>
+                <MenuItem value="streetwear">🎨 Streetwear</MenuItem>
+                <MenuItem value="classic">👔 Classic</MenuItem>
+                <MenuItem value="Fancy">💎 Fancy</MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
         
-        <Box display="flex" justifyContent="space-between" mb={outfit ? 2 : 0}>
-          <Button 
-            variant="contained" 
+        {/* Generate Button */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <GenerateButton 
             onClick={handleGenerate}
             disabled={generating || items.length === 0}
-            startIcon={<RefreshIcon />}
+            startIcon={generating ? <CircularProgress size={20} color="inherit" /> : <MagicIcon />}
+            size="large"
           >
-            {generating ? 'Generating...' : 'Generate Outfit'}
-            {generating && <CircularProgress size={24} sx={{ ml: 1 }} />}
-          </Button>
-          
-          {outfit && (
-            <Button 
-              variant="contained" 
-              color="success"
-              onClick={handleSave}
-              disabled={generating}
-              startIcon={<FavoriteIcon />}
-            >
-              Save Outfit
-            </Button>
-          )}
+            {generating ? 'Creating Magic...' : 'Generate Outfit'}
+          </GenerateButton>
         </Box>
-        
-        {outfit && (
-          <Box mt={3}>
-            <Typography variant="h6" gutterBottom>Generated Outfit</Typography>
-            <Grid container spacing={2}>
+      </FilterSection>
+      
+      {/* Generated Outfit Result */}
+      {outfit && (
+        <OutfitResultCard>
+          <OutfitPreview>
+            <Typography variant="h5" sx={{ ...responsiveTypography.subtitle, mb: 1 }}>
+              ✨ Your Perfect Outfit
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              Curated by AI for {filters.occasion} occasions in {filters.weather} weather
+            </Typography>
+          </OutfitPreview>
+          
+          <CardContent>
+            <Grid container spacing={3}>
               {outfit.items.map((item, index) => (
                 <Grid item xs={6} sm={4} md={3} key={index}>
-                  <Card>
+                  <ClothingItemCard>
                     <CardMedia
                       component="img"
-                      height="140"
-                      image={getImageUrl(item.image) || getPlaceholderImage(150, 140)}
+                      height="160"
+                      image={getImageUrl(item.image) || getPlaceholderImage(150, 160)}
                       alt={item.name}
                       sx={{ objectFit: 'cover' }}
                     />
-                    <CardContent>
-                      <Typography variant="subtitle2" noWrap>{item.name}</Typography>
-                      <Typography variant="caption" color="text.secondary">{item.category}</Typography>
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        {item.name}
+                      </Typography>
+                      <Chip 
+                        label={item.category} 
+                        size="small" 
+                        variant="outlined"
+                        sx={{ fontSize: '0.7rem' }}
+                      />
                     </CardContent>
-                  </Card>
+                  </ClothingItemCard>
                 </Grid>
               ))}
             </Grid>
             
-            {outfit.reasoning && (
-              <Box mt={2} p={2} bgcolor="action.hover" borderRadius={1}>
-                <Typography variant="subtitle2" gutterBottom>Why this works:</Typography>
-                <Typography variant="body2">{outfit.reasoning}</Typography>
-              </Box>
-            )}
-          </Box>
-        )}
-        
-        {items.length === 0 && (
-          <Alert severity="info" sx={{ mt: 2 }}>
-            No clothing items found. Please add some items to your wardrobe first.
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
+            {/* Save Button */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <ModernButton
+                variant="success"
+                onClick={handleSave}
+                disabled={generating}
+                startIcon={<SaveIcon />}
+                size="large"
+              >
+                Save This Outfit
+              </ModernButton>
+            </Box>
+          </CardContent>
+        </OutfitResultCard>
+      )}
+      
+      {/* Empty State */}
+      {items.length === 0 && (
+        <ModernCard sx={{ textAlign: 'center', py: 6 }}>
+          <MagicIcon sx={{ fontSize: '4rem', color: modernBlue.primary, mb: 2, opacity: 0.5 }} />
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            No clothing items found
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Add some clothing items to your wardrobe to start generating outfits
+          </Typography>
+        </ModernCard>
+      )}
+    </GeneratorContainer>
   );
 };
 

@@ -10,15 +10,82 @@ import {
   Alert,
   Container,
   Card,
-  CardContent
+  CardContent,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import { Add as AddIcon, Style as StyleIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import OutfitItem from './OutfitItem';
 import OutfitGenerator from './OutfitGenerator';
 import OutfitHistory from './OutfitHistory';
-import './Outfits.css';
+import { 
+  ModernCard, 
+  ModernButton, 
+  modernBlue, 
+  gradients, 
+  responsiveContainer,
+  responsiveTypography,
+  responsiveSpacing
+} from '../../theme/modernDesign';
+
+// Styled Components - Modern glassmorphism design
+const ModernContainer = styled(Container)(({ theme }) => ({
+  ...responsiveContainer(theme),
+  ...responsiveSpacing.sectionPadding,
+  minHeight: 'calc(100vh - 100px)',
+}));
+
+const ModernTabs = styled(Tabs)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  '& .MuiTabs-indicator': {
+    background: gradients.primary,
+    height: 3,
+    borderRadius: 1.5,
+  },
+  '& .MuiTab-root': {
+    ...responsiveTypography.subtitle,
+    textTransform: 'none',
+    fontWeight: 600,
+    color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&.Mui-selected': {
+      background: gradients.primary,
+      backgroundClip: 'text',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      fontWeight: 700,
+    },
+    '&:hover': {
+      color: modernBlue.primary,
+    }
+  }
+}));
+
+const HeaderSection = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: theme.spacing(4),
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    flexDirection: 'row',
+    gap: 0,
+  }
+}));
+
+const EmptyStateCard = styled(ModernCard)(({ theme }) => ({
+  textAlign: 'center',
+  padding: theme.spacing(6),
+  maxWidth: 500,
+  margin: '0 auto',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(4),
+  }
+}));
 
 // TabPanel component for the tabbed interface
 function TabPanel(props) {
@@ -108,42 +175,45 @@ const Outfits = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <ModernContainer maxWidth="lg">
       {/* Header with title and create button */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">My Outfits</Typography>
-        <Button
-          variant="contained"
-          color="primary"
+      <HeaderSection>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <StyleIcon sx={{ fontSize: '2rem', color: modernBlue.primary }} />
+          <Typography variant="h4" sx={{ ...responsiveTypography.title }}>
+            My Outfits
+          </Typography>
+        </Box>
+        <ModernButton
+          variant="primary"
           startIcon={<AddIcon />}
           onClick={() => navigate('/create-outfit')}
         >
           Create New Outfit
-        </Button>
-      </Box>
+        </ModernButton>
+      </HeaderSection>
 
       {/* Error message display */}
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 3 }}>
           {error}
         </Alert>
       )}
 
       <Box sx={{ width: '100%' }}>
-        {/* Tabs navigation */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs 
-            value={tab} 
-            onChange={handleTabChange}
-            aria-label="outfits tabs"
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            <Tab label="My Outfits" {...a11yProps(0)} />
-            <Tab label="AI Outfit Generator" {...a11yProps(1)} />
-            <Tab label="Outfit History" {...a11yProps(2)} />
-          </Tabs>
-        </Box>
+        {/* Modern Tabs navigation */}
+        <ModernTabs 
+          value={tab} 
+          onChange={handleTabChange}
+          aria-label="outfits tabs"
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{ mb: 3 }}
+        >
+          <Tab label="My Outfits" {...a11yProps(0)} />
+          <Tab label="AI Generator" {...a11yProps(1)} />
+          <Tab label="History" {...a11yProps(2)} />
+        </ModernTabs>
 
         {/* Tab Panels */}
         <TabPanel value={tab} index={0}>
@@ -156,9 +226,22 @@ const Outfits = () => {
               ))
             ) : (
               <Grid item xs={12}>
-                <Typography variant="body1" color="textSecondary">
-                  No outfits found. Create your first outfit!
-                </Typography>
+                <EmptyStateCard>
+                  <StyleIcon sx={{ fontSize: '4rem', color: modernBlue.primary, mb: 2 }} />
+                  <Typography variant="h6" sx={{ ...responsiveTypography.subtitle, mb: 2 }}>
+                    No outfits found
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" paragraph>
+                    Create your first outfit and start building your digital wardrobe.
+                  </Typography>
+                  <ModernButton
+                    variant="primary"
+                    onClick={() => navigate('/create-outfit')}
+                    startIcon={<AddIcon />}
+                  >
+                    Create New Outfit
+                  </ModernButton>
+                </EmptyStateCard>
               </Grid>
             )}
           </Grid>
@@ -172,7 +255,7 @@ const Outfits = () => {
           <OutfitHistory />
         </TabPanel>
       </Box>
-    </Container>
+    </ModernContainer>
   );
 };
 

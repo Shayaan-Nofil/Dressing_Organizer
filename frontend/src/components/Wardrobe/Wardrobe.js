@@ -1,5 +1,160 @@
 import React, { useState, useEffect } from 'react';
-import './Wardrobe.css';
+import {
+  Container,
+  Typography,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  IconButton,
+  Fab,
+  Avatar,
+  Chip,
+  CircularProgress,
+  Alert,
+  InputAdornment,
+  Paper,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import {
+  modernBlue,
+  gradients,
+  ModernCard,
+  ModernButton,
+  modernTypography,
+  modernContainer,
+  createGlassmorphismBg,
+  shadows,
+  responsiveGrid
+} from '../../theme/modernDesign';
+
+// Icons
+import AddIcon from '@mui/icons-material/Add';
+import CheckroomIcon from '@mui/icons-material/Checkroom';
+import CategoryIcon from '@mui/icons-material/Category';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+
+// Styled Components
+const WardrobeContainer = styled(Box)(({ theme }) => ({
+  minHeight: '100vh',
+  background: theme.palette.mode === 'dark'
+    ? 'radial-gradient(circle at 20% 50%, rgba(79, 70, 229, 0.05), transparent 50%), radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.05), transparent 50%)'
+    : 'radial-gradient(circle at 20% 50%, rgba(79, 70, 229, 0.02), transparent 50%), radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.02), transparent 50%)',
+  position: 'relative',
+  paddingTop: theme.spacing(4),
+  paddingBottom: theme.spacing(8),
+}));
+
+const HeaderCard = styled(ModernCard)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+  padding: theme.spacing(3, 4),
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  }
+}));
+
+const ClothingCard = styled(ModernCard)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  cursor: 'pointer',
+  '&:hover .clothing-actions': {
+    opacity: 1,
+    transform: 'translateY(0)',
+  }
+}));
+
+const ClothingImage = styled(CardMedia)(({ theme }) => ({
+  height: 200,
+  position: 'relative',
+  background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  [theme.breakpoints.down('sm')]: {
+    height: 180,
+  }
+}));
+
+const ActionsOverlay = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: 'rgba(0, 0, 0, 0.7)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: theme.spacing(1),
+  opacity: 0,
+  transform: 'translateY(10px)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+}));
+
+const FilterCard = styled(Paper)(({ theme }) => ({
+  ...createGlassmorphismBg(theme, 0.8),
+  padding: theme.spacing(2),
+  borderRadius: 16,
+  marginBottom: theme.spacing(3),
+  border: `1px solid ${theme.palette.mode === 'dark' 
+    ? 'rgba(255, 255, 255, 0.1)' 
+    : 'rgba(0, 0, 0, 0.05)'}`,
+}));
+
+const AddDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialog-paper': {
+    ...createGlassmorphismBg(theme),
+    borderRadius: 20,
+    maxWidth: 600,
+    width: '100%',
+    margin: theme.spacing(2),
+  }
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    background: theme.palette.mode === 'dark' 
+      ? 'rgba(255, 255, 255, 0.02)' 
+      : 'rgba(255, 255, 255, 0.8)',
+    backdropFilter: 'blur(10px)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      boxShadow: `0 4px 12px ${modernBlue.primary}20`,
+    },
+    '&.Mui-focused': {
+      boxShadow: `0 4px 12px ${modernBlue.primary}30`,
+    }
+  }
+}));
 
 const Wardrobe = () => {
   const [clothingItems, setClothingItems] = useState([]);
