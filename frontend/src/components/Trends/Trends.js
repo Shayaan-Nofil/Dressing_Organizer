@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Trends.css';
+import { getWearFrequencyStats, getAllItems } from '../../services/clothing';
+import { getImageUrl, getPlaceholderImage } from '../../utils/imageUtils';
 
 const Trends = () => {
   const [trends] = useState([
@@ -39,23 +41,57 @@ const Trends = () => {
       combos: ['Sweater + Jeans + Boots', 'Turtleneck + Coat', 'Dress + Tights + Ankle Boots'],
     },
   ]);
-
-  // Placeholder analytics data
-  const [analytics] = useState({
-    wearFrequency: [
-      { name: 'Blue Denim Jacket', count: 12 },
-      { name: 'White T-shirt', count: 20 },
-      { name: 'Black Jeans', count: 15 },
-    ],
-    combinationHistory: [
-      { date: '2024-06-10', items: ['Blue Denim Jacket', 'White T-shirt', 'Black Jeans'], rating: 5 },
-      { date: '2024-06-09', items: ['Sweater', 'Jeans'], rating: 4 },
-    ],
-    lifecycle: [
-      { name: 'White T-shirt', wears: 50, recommendation: 'Consider replacing soon' },
-      { name: 'Blue Denim Jacket', wears: 12, recommendation: 'Good condition' },
-    ],
+  // Real analytics data
+  const [analytics, setAnalytics] = useState({
+    wearFrequency: [],
+    combinationHistory: [],
+    lifecycle: [],
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const [wearStats, allItems] = await Promise.all([
+          getWearFrequencyStats(),
+          getAllItems()
+        ]);
+
+        // Process wear frequency data
+        const sortedByWears = wearStats.sort((a, b) => (b.timesWorn || 0) - (a.timesWorn || 0)).slice(0, 10);
+        
+        // Create lifecycle recommendations
+        const lifecycle = allItems.map(item => {
+          const wears = item.timesWorn || 0;
+          let recommendation = 'New item';
+          if (wears > 50) recommendation = 'Consider replacing soon';
+          else if (wears > 30) recommendation = 'Well-worn, still good';
+          else if (wears > 10) recommendation = 'Good condition';
+          
+          return {
+            name: item.name,
+            image: item.image,
+            wears,
+            recommendation
+          };
+        }).slice(0, 5);
+
+        setAnalytics({
+          wearFrequency: sortedByWears,
+          combinationHistory: [], // This would need outfit history data
+          lifecycle
+        });
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+        // Keep fallback data if fetch fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
 
   return (
     <div className="trends-container">
@@ -89,35 +125,62 @@ const Trends = () => {
             </div>
           </div>
         ))}
-      </div>
-
-      <h2>Analytics & Insights</h2>
-      <div className="analytics-section">
-        <div className="analytics-card">
-          <h3>Wear Frequency Stats</h3>
-          <ul>
-            {analytics.wearFrequency.map((item, idx) => (
-              <li key={idx}>{item.name}: {item.count} wears</li>
-            ))}
-          </ul>
+      </div>      <h2>Analytics & Insights</h2>
+      {loading ? (
+        <div>Loading analytics...</div>
+      ) : (
+        <div className="analytics-section">
+          <div className="analytics-card">
+            <h3>Most Worn Items</h3>
+            <div className="wear-frequency-grid">
+              {analytics.wearFrequency.map((item, idx) => (
+                <div key={item._id || idx} className="wear-frequency-item">
+                  <img 
+                    src={getImageUrl(item.image) || getPlaceholderImage(60, 60)} 
+                    alt={item.name}
+                    className="wear-frequency-img"
+                  />
+                  <div className="wear-frequency-info">
+                    <strong>{item.name}</strong>
+                    <span>{item.timesWorn || 0} wears</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="analytics-card">
+            <h3>Combination History</h3>
+            <ul>
+              {analytics.combinationHistory.length > 0 ? (
+                analytics.combinationHistory.map((combo, idx) => (
+                  <li key={idx}>{combo.date}: {combo.items.join(' + ')} (Rating: {combo.rating}/5)</li>
+                ))
+              ) : (
+                <li>No combination history available yet</li>
+              )}
+            </ul>
+          </div>
+          <div className="analytics-card">
+            <h3>Clothing Lifecycle Insights</h3>
+            <div className="lifecycle-grid">
+              {analytics.lifecycle.map((item, idx) => (
+                <div key={idx} className="lifecycle-item">
+                  <img 
+                    src={getImageUrl(item.image) || getPlaceholderImage(50, 50)} 
+                    alt={item.name}
+                    className="lifecycle-img"
+                  />
+                  <div className="lifecycle-info">
+                    <strong>{item.name}</strong>
+                    <span>{item.wears} wears</span>
+                    <small>{item.recommendation}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="analytics-card">
-          <h3>Combination History</h3>
-          <ul>
-            {analytics.combinationHistory.map((combo, idx) => (
-              <li key={idx}>{combo.date}: {combo.items.join(' + ')} (Rating: {combo.rating}/5)</li>
-            ))}
-          </ul>
-        </div>
-        <div className="analytics-card">
-          <h3>Clothing Lifecycle Insights</h3>
-          <ul>
-            {analytics.lifecycle.map((item, idx) => (
-              <li key={idx}>{item.name}: {item.wears} wears - {item.recommendation}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

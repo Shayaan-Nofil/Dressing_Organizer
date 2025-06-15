@@ -45,6 +45,49 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// Get unused items (not worn for 30+ days)
+router.get('/unused', async (req, res) => {
+  try {
+    const threshold = new Date();
+    threshold.setDate(threshold.getDate() - 30);
+    const items = await ClothingItem.find({ $or: [ { lastWorn: { $lt: threshold } }, { lastWorn: null } ] });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get least-worn items (sorted by lastWorn asc)
+router.get('/least-worn', async (req, res) => {
+  try {
+    const items = await ClothingItem.find().sort({ lastWorn: 1 });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get wear frequency stats
+router.get('/stats/frequency', async (req, res) => {
+  try {
+    const items = await ClothingItem.find();
+    const stats = items.map(item => ({
+      _id: item._id,
+      id: item._id,
+      name: item.name,
+      image: item.image,
+      type: item.type,
+      category: item.category,
+      color: item.color,
+      lastWorn: item.lastWorn,
+      timesWorn: item.timesWorn || 0
+    }));
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Get one clothing item
 router.get('/:id', async (req, res) => {
   try {
@@ -166,43 +209,7 @@ router.patch('/:id/favorite', async (req, res) => {
   }
 });
 
-// Get unused items (not worn for 30+ days)
-router.get('/unused', async (req, res) => {
-  try {
-    const threshold = new Date();
-    threshold.setDate(threshold.getDate() - 30);
-    const items = await ClothingItem.find({ $or: [ { lastWorn: { $lt: threshold } }, { lastWorn: null } ] });
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
-// Get least-worn items (sorted by lastWorn asc)
-router.get('/least-worn', async (req, res) => {
-  try {
-    const items = await ClothingItem.find().sort({ lastWorn: 1 });
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Get wear frequency stats
-router.get('/stats/frequency', async (req, res) => {
-  try {
-    const items = await ClothingItem.find();
-    const stats = items.map(item => ({
-      id: item._id,
-      name: item.name,
-      lastWorn: item.lastWorn,
-      timesWorn: item.timesWorn || 0
-    }));
-    res.json(stats);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // PATCH /:id/lifecycle - Lifecycle action (donate, restyle, replace)
 const auth = require('../middleware/authMiddleware');
