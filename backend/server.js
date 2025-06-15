@@ -24,11 +24,13 @@ const clothingItemsRouter = require('./routes/clothingItems');
 const outfitsRouter = require('./routes/outfits');
 const notificationsRouter = require('./routes/notifications');
 const authRouter = require('./routes/auth');
+const analyticsRouter = require('./routes/analytics');
 
 app.use('/api/clothing-items', clothingItemsRouter);
 app.use('/api/outfits', outfitsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/analytics', analyticsRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

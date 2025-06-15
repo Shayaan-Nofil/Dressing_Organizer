@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Outfits.css';
 import { getOutfitSuggestions, getOutfitHistory, getAllOutfits } from '../../services/outfits';
-import { Box, Tabs, Tab, Typography, Grid, Card, CardContent, Button, CircularProgress } from '@mui/material';
+import { Box, Tabs, Tab, Typography, Grid, Card, CardContent, Button, CircularProgress, Alert, TextField, CardMedia } from '@mui/material';
 
 const Outfits = () => {
   const [tab, setTab] = useState(0);
@@ -152,7 +152,110 @@ const Outfits = () => {
   };
 
   return (
-    <Box className="outfits-container" sx={{ mt: 4 }}>
+    <Box sx={{ width: '100%', p: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button variant="contained" color="primary" onClick={() => setShowAddForm(v => !v)}>
+          {showAddForm ? 'Cancel' : 'Create New Outfit'}
+        </Button>
+      </Box>
+      {message && (
+        <Box sx={{ mb: 2, maxWidth: 600, mx: 'auto' }}>
+          <Alert severity={messageType === 'error' ? 'error' : 'success'}>{message}</Alert>
+        </Box>
+      )}
+      {showAddForm && (
+        <Box className="add-outfit-form" sx={{ background: '#fff', p: 3, borderRadius: 2, boxShadow: 2, mb: 3, maxWidth: 600, mx: 'auto' }}>
+          <Typography variant="h5" gutterBottom>Create a New Outfit</Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Outfit Name"
+              name="name"
+              value={newOutfit.name}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Occasion"
+              name="occasion"
+              value={newOutfit.occasion}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Weather"
+              name="weather"
+              value={newOutfit.weather}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Season"
+              name="season"
+              value={newOutfit.season}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Style"
+              name="style"
+              value={newOutfit.style}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Notes"
+              name="notes"
+              value={newOutfit.notes}
+              onChange={handleInputChange}
+              fullWidth
+              multiline
+              rows={2}
+              sx={{ mb: 2 }}
+            />
+            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Select Clothing Items:</Typography>
+            <Grid container spacing={2} className="wardrobe-items-list">
+              {clothingItems.length === 0 && (
+                <Grid item xs={12}><Typography color="textSecondary">No wardrobe items found.</Typography></Grid>
+              )}
+              {clothingItems.map(item => (
+                <Grid item xs={6} sm={4} md={3} key={item._id}>
+                  <Card
+                    className={`wardrobe-item-card${selectedItems.includes(item._id) ? ' selected' : ''}`}
+                    sx={{ cursor: 'pointer', border: selectedItems.includes(item._id) ? '2px solid #2196F3' : '2px solid transparent', boxShadow: selectedItems.includes(item._id) ? 4 : 1 }}
+                    onClick={() => handleItemSelect(item._id)}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="80"
+                      image={item.imageUrl || 'https://via.placeholder.com/80'}
+                      alt={item.name}
+                      sx={{ objectFit: 'cover', borderRadius: 1, mt: 1 }}
+                    />
+                    <CardContent sx={{ p: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">{item.category}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+            <Box className="form-actions" sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Button type="submit" variant="contained" color="success" disabled={loading || selectedItems.length === 0}>
+                {loading ? <CircularProgress size={20} /> : 'Save Outfit'}
+              </Button>
+              <Button variant="outlined" color="error" onClick={() => setShowAddForm(false)}>
+                Cancel
+              </Button>
+            </Box>
+          </form>
+        </Box>
+      )}
       <Tabs value={tab} onChange={handleTabChange} centered>
         <Tab label="My Outfits" />
         <Tab label="Suggestions" />

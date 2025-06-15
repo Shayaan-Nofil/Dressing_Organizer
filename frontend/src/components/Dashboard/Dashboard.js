@@ -130,32 +130,7 @@ const ActivityItem = styled(ListItem)(({ theme }) => ({
 }));
 
 // Mock data
-const mockOutfits = [
-  {
-    id: 1,
-    name: 'Summer Casual',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    items: ['White T-shirt', 'Blue Jeans', 'Sneakers'],
-    favorite: true,
-    lastWorn: '2 days ago'
-  },
-  {
-    id: 2,
-    name: 'Business Meeting',
-    image: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    items: ['Navy Blazer', 'White Shirt', 'Khaki Pants', 'Loafers'],
-    favorite: false,
-    lastWorn: '1 week ago'
-  },
-  {
-    id: 3,
-    name: 'Workout Ready',
-    image: 'https://images.unsplash.com/photo-1483721310020-03333e577078?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
-    items: ['Athletic Shirt', 'Running Shorts', 'Training Shoes'],
-    favorite: true,
-    lastWorn: 'Yesterday'
-  }
-];
+
 
 const mockActivities = [
   { id: 1, action: 'Created new outfit', name: 'Summer Casual', time: '2 hours ago', icon: <StyleIcon color="primary" /> },
@@ -164,15 +139,36 @@ const mockActivities = [
   { id: 4, action: 'Added to favorites', name: 'Workout Ready', time: '1 week ago', icon: <FavoriteIcon color="error" /> }
 ];
 
-const mockStats = [
-  { label: 'Total Items', value: 48, color: '#3f51b5', icon: <CheckroomIcon />, increase: '+3 this month' },
-  { label: 'Outfits Created', value: 12, color: '#f50057', icon: <StyleIcon />, increase: '+2 this week' },
-  { label: 'Favorite Items', value: 8, color: '#ff9800', icon: <FavoriteIcon />, increase: 'Most worn: Blue Jeans' }
-];
 
 function Dashboard() {
+  // --- Analytics State ---
+  const [analytics, setAnalytics] = useState({
+    totalItems: 0,
+    categoryBreakdown: {},
+    colorBreakdown: {},
+    mostWornItems: [],
+    leastWornItems: [],
+    seasonalUsage: {},
+    combinationHistory: [],
+    lifecycleRecommendations: []
+  });
 
-  // ...existing state and logic...
+  // Outfit suggestions derived from analytics
+  const outfitSuggestions = analytics.combinationHistory.length > 0 ? analytics.combinationHistory.map((combo, idx) => ({
+    id: idx + 1,
+    name: combo.items.join(' + '),
+    image: '', // Optionally map to an image if available
+    items: combo.items,
+    favorite: false,
+    lastWorn: combo.lastWorn ? new Date(combo.lastWorn).toLocaleDateString() : ''
+  })) : [];
+
+  // Stats for dashboard
+  const stats = [
+    { label: 'Total Items', value: analytics.totalItems, color: '#3f51b5', icon: <CheckroomIcon />, increase: '' },
+    { label: 'Most Worn Item', value: analytics.mostWornItems[0]?.name || 'N/A', color: '#ff9800', icon: <FavoriteIcon />, increase: analytics.mostWornItems[0] ? `${analytics.mostWornItems[0].wearCount} wears` : '' },
+    { label: 'Top Category', value: Object.entries(analytics.categoryBreakdown).sort((a,b) => b[1]-a[1])[0]?.[0] || 'N/A', color: '#f50057', icon: <StyleIcon />, increase: '' }
+  ];
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -182,13 +178,29 @@ function Dashboard() {
     humidity: 45,
     icon: <WbSunnyIcon sx={{ fontSize: 40 }} />
   });
-  
+
+  // Fetch analytics on mount
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/analytics', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        const data = await response.json();
+        setAnalytics(data);
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+
   // Simulate loading data
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1200);
-    
     return () => clearTimeout(timer);
   }, []);
   
@@ -250,33 +262,33 @@ function Dashboard() {
                     <CardMedia
                       component="img"
                       height="240"
-                      image={mockOutfits[0].image}
-                      alt={mockOutfits[0].name}
+                      image={outfitSuggestions[0]?.image || ''}
+                      alt={outfitSuggestions[0]?.name || 'Outfit'}
                       sx={{ objectFit: 'cover' }}
                     />
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                         <Typography variant="h6" component="div">
-                          {mockOutfits[0].name}
+                          {outfitSuggestions[0]?.name || 'Outfit'}
                         </Typography>
                         <IconButton size="small" color="error">
                           <FavoriteIcon />
                         </IconButton>
                       </Box>
                       <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}>
-                        {mockOutfits[0].items.map((item, index) => (
+                        {outfitSuggestions[0]?.items?.map((item, index) => (
                           <Chip key={index} label={item} size="small" variant="outlined" />
                         ))}
                       </Stack>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2" color="text.secondary">
                           <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'text-bottom' }} />
-                          Last worn: {mockOutfits[0].lastWorn}
+                          Last worn: {outfitSuggestions[0]?.lastWorn || 'N/A'}
                         </Typography>
                         <Button 
                           size="small" 
                           endIcon={<ArrowForwardIcon />}
-                          onClick={() => navigate('/outfits/1')}
+                          onClick={() => navigate('/outfits')}
                         >
                           Details
                         </Button>
@@ -291,7 +303,7 @@ function Dashboard() {
                       Alternative Options
                     </Typography>
                     
-                    {mockOutfits.slice(1, 3).map((outfit) => (
+                    {outfitSuggestions.slice(1, 3).map((outfit) => (
                       <Box 
                         key={outfit.id} 
                         sx={{
@@ -308,18 +320,18 @@ function Dashboard() {
                         <CardMedia
                           component="img"
                           sx={{ width: 80, height: 80, borderRadius: 1, objectFit: 'cover' }}
-                          image={outfit.image}
-                          alt={outfit.name}
+                          image={outfit.image || ''}
+                          alt={outfit.name || 'Outfit'}
                         />
                         <Box sx={{ display: 'flex', flexDirection: 'column', ml: 2, flexGrow: 1 }}>
                           <Typography variant="subtitle1">{outfit.name}</Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {outfit.items.length} items
+                            {outfit.items?.length} items
                           </Typography>
                           <Box sx={{ display: 'flex', mt: 'auto' }}>
-                            <Button size="small" onClick={() => navigate(`/outfits/${outfit.id}`)}>View</Button>
+                            <Button size="small" onClick={() => navigate('/outfits')}>View</Button>
                             <IconButton size="small" sx={{ ml: 'auto' }}>
-                              {outfit.favorite ? <FavoriteIcon color="error" fontSize="small" /> : <FavoriteIcon color="disabled" fontSize="small" />}
+                              <FavoriteIcon color="disabled" fontSize="small" />
                             </IconButton>
                           </Box>
                         </Box>
@@ -374,7 +386,7 @@ function Dashboard() {
               </Typography>
               
               <Stack spacing={2}>
-                {mockStats.map((stat, index) => (
+                {stats.map((stat, index) => (
                   <StatsCard key={index} sx={{ backgroundColor: `${stat.color}15` }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Avatar sx={{ bgcolor: stat.color, width: 40, height: 40 }}>
@@ -389,11 +401,13 @@ function Dashboard() {
                         </Typography>
                       </Box>
                     </Box>
-                    <Tooltip title={stat.increase} placement="top">
-                      <IconButton size="small">
-                        <TrendingUpIcon fontSize="small" sx={{ color: stat.color }} />
-                      </IconButton>
-                    </Tooltip>
+                    {stat.increase && (
+                      <Tooltip title={stat.increase} placement="top">
+                        <IconButton size="small">
+                          <TrendingUpIcon fontSize="small" sx={{ color: stat.color }} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </StatsCard>
                 ))}
               </Stack>
