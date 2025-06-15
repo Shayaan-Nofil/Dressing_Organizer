@@ -65,14 +65,34 @@ const OutfitGenerator = ({ onSaveOutfit }) => {
       
       // Filter items based on selected filters
       const filteredItems = items.filter(item => {
-        if (filters.occasion && item.occasion !== filters.occasion) return false;
-        if (filters.weather && item.weather !== filters.weather) return false;
-        if (filters.style && !item.style?.includes(filters.style)) return false;
+        // For weather filtering, only filter if a specific weather is selected (not 'moderate')
+        if (filters.weather && filters.weather !== 'moderate') {
+          // Map weather to seasons - be more permissive
+          const weatherToSeason = {
+            'hot': ['summer'],
+            'warm': ['spring', 'summer'],
+            'cool': ['fall', 'spring'], 
+            'cold': ['winter']
+          };
+          const expectedSeasons = weatherToSeason[filters.weather];
+          
+          if (expectedSeasons && item.season && !expectedSeasons.includes(item.season.toLowerCase())) {
+            return false;
+          }
+        }
+        
+        // For now, we'll be very permissive and allow most items through
+        // You can add more sophisticated filtering later based on tags or categories
         return true;
       });
 
-      if (filteredItems.length < 2) {
-        throw new Error('Not enough items match the selected filters');
+      console.log('Total items:', items.length);
+      console.log('Filtered items:', filteredItems.length);
+      console.log('Current filters:', filters);
+      console.log('Sample items:', items.slice(0, 2));
+
+      if (filteredItems.length < 1) {
+        throw new Error(`Not enough items match the selected filters. Found ${filteredItems.length} items out of ${items.length} total.`);
       }
 
       // Generate outfit using AI

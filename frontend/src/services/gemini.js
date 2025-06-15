@@ -2,7 +2,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize with your API key
-const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY || 'YOUR_API_KEY');
+const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY || 'AIzaSyCpIRHDrooZXfGiveOMQr40f5TFyjSZpsg');
 
 // Helper function to convert file to base64
 const fileToBase64 = (file) => new Promise((resolve, reject) => {
@@ -19,28 +19,31 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
  * @param {string} weather - Current or expected weather
  * @returns {Promise<Object>} - Generated outfit suggestion
  */
-export const generateOutfitSuggestion = async (userItems, occasion = 'casual', weather = 'moderate') => {
+export const generateOutfitSuggestion = async (userItems, filters = {}) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const prompt = `You are a fashion assistant. Create an outfit using the following items from the user's wardrobe.
+    const occasion = filters.occasion || 'casual';
+    const weather = filters.weather || 'moderate';
+    const style = filters.style || '';
+    
+    const prompt = `You are a fashion assistant. Create an outfit using ONLY items from the user's wardrobe below.
       
-User's Items (ID, Type, Color, Style):
-${userItems.map(item => `- ${item.name} (${item.type}, ${item.color}, ${item.style || 'casual'})`).join('\n')}
+User's Available Items:
+${userItems.map(item => `- ID: ${item._id}, Name: ${item.name}, Type: ${item.type}, Category: ${item.category}, Color: ${item.color}, Season: ${item.season}`).join('\n')}
 
-Occasion: ${occasion}
-Weather: ${weather}
+Requirements:
+- Occasion: ${occasion}
+- Weather: ${weather}
+${style ? `- Style: ${style}` : ''}
 
-Return a JSON object with this structure:
+IMPORTANT: You must return a valid JSON object with this exact structure and ONLY use item IDs from the list above:
 {
-  "outfit": {
-    "top": "Item name and description",
-    "bottom": "Item name and description",
-    "shoes": "Item name and description",
-    "accessories": "Item name and description"
-  },
-  "reasoning": "Explanation of why this outfit works well"
-}`;
+  "items": ["item_id_1", "item_id_2", "item_id_3"],
+  "reasoning": "Brief explanation of why this outfit works well"
+}
+
+Select 2-4 items that work well together for the given occasion and weather.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -64,7 +67,7 @@ Return a JSON object with this structure:
  */
 export const analyzeClothingImage = async (imageFile) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const imageBase64 = await fileToBase64(imageFile);
     
     const result = await model.generateContent([
