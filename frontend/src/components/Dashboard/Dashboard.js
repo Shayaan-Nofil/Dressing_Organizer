@@ -28,17 +28,11 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import MenuItem from '@mui/material/MenuItem';
 
 // Icons
-import AddIcon from '@mui/icons-material/Add';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import StyleIcon from '@mui/icons-material/Style';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import CloudIcon from '@mui/icons-material/Cloud';
-import AcUnitIcon from '@mui/icons-material/AcUnit';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';

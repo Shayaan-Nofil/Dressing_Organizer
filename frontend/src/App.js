@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
-import ClothingList from './components/Items/ClothingList';
+import ClothingList from './components/Clothing/ClothingList';
 import OutfitList from './components/Outfits/OutfitList';
 import OutfitHistory from './components/Outfits/OutfitHistory';
 import Analytics from './components/Analytics/Analytics';
@@ -14,6 +14,7 @@ import Profile from './components/Profile/Profile';
 import Navbar from './components/Navigation/Navbar';
 import NotFound from './components/NotFound';
 import CreateOutfitForm from './components/Outfits/CreateOutfitForm';
+import AddClothingForm from './components/Clothing/AddClothingForm';
 
 const theme = createTheme({
   palette: {
@@ -54,6 +55,7 @@ function MainRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/clothes" element={<ProtectedRoute><ClothingList /></ProtectedRoute>} />
+        <Route path='add-clothing' element={<ProtectedRoute><AddClothingForm /></ProtectedRoute>} />
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/outfits" element={<ProtectedRoute><OutfitList /></ProtectedRoute>} />

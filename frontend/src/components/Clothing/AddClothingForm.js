@@ -18,18 +18,23 @@ import axios from 'axios';
 function AddClothingForm() {
   const [formData, setFormData] = useState({
     name: '',
+    type: '',
     category: '',
     color: '',
     brand: '',
     size: '',
-    material: '',
     season: [],
-    imageUrl: '',
-    tags: []
+    condition: '',
+    purchaseDate: '',
+    price: '',
+    notes: '',
+    tags: [],
+    image: null
   });
   const [tagInput, setTagInput] = useState('');
   const navigate = useNavigate();
 
+  const types = ['Shirt', 'T-shirt', 'Blouse', 'Sweater', 'Jacket', 'Coat', 'Blazer', 'Pants', 'Jeans', 'Shorts', 'Skirt', 'Dress', 'Jumpsuit', 'Suit', 'Shoes', 'Sneakers', 'Boots', 'Sandals', 'Heels', 'Flats', 'Bag', 'Belt', 'Hat', 'Scarf', 'Gloves', 'Jewelry', 'Watch', 'Other'];
   const categories = ['top', 'bottom', 'dress', 'outerwear', 'shoes', 'accessories'];
   const seasons = ['spring', 'summer', 'fall', 'winter'];
 
@@ -37,13 +42,36 @@ function AddClothingForm() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/clothing-items', formData, {
-        headers: { Authorization: `Bearer ${token}` }
+      const fd = new FormData();
+      fd.append('name', formData.name);
+      fd.append('type', formData.type);
+      fd.append('category', formData.category);
+      fd.append('color', formData.color);
+      fd.append('brand', formData.brand);
+      fd.append('size', formData.size);
+      fd.append('season', formData.season.join(','));
+      fd.append('condition', formData.condition);
+      fd.append('purchaseDate', formData.purchaseDate);
+      fd.append('price', formData.price);
+      fd.append('notes', formData.notes);
+      if (formData.tags.length > 0) fd.append('tags', formData.tags.join(','));
+      if (formData.image) fd.append('image', formData.image);
+      await axios.post('http://localhost:5000/api/clothing-items', fd, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
       navigate('/clothes');
     } catch (error) {
-      console.error('Error adding item:', error);
+      console.error('Error adding item:', error?.response?.data || error);
+      alert('Error adding item: ' + (error?.response?.data?.message || error.message));
     }
+  };
+
+  // Handle file input
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, image: e.target.files[0] });
   };
 
   const handleAddTag = () => {
@@ -75,6 +103,20 @@ function AddClothingForm() {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Type</InputLabel>
+            <Select
+              value={formData.type}
+              label="Type"
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+            >
+              {types.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <FormControl fullWidth margin="normal">
             <InputLabel>Category</InputLabel>
             <Select
@@ -111,13 +153,6 @@ function AddClothingForm() {
             value={formData.size}
             onChange={(e) => setFormData({ ...formData, size: e.target.value })}
           />
-          <TextField
-            fullWidth
-            label="Material"
-            margin="normal"
-            value={formData.material}
-            onChange={(e) => setFormData({ ...formData, material: e.target.value })}
-          />
           <FormControl fullWidth margin="normal">
             <InputLabel>Seasons</InputLabel>
             <Select
@@ -135,11 +170,41 @@ function AddClothingForm() {
           </FormControl>
           <TextField
             fullWidth
-            label="Image URL"
+            label="Condition"
             margin="normal"
-            value={formData.imageUrl}
-            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+            value={formData.condition}
+            onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
           />
+          <TextField
+            fullWidth
+            label="Purchase Date"
+            type="date"
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            value={formData.purchaseDate}
+            onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            label="Price"
+            type="number"
+            margin="normal"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            label="Notes"
+            margin="normal"
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          />
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Button variant="outlined" component="label">
+              {formData.image ? formData.image.name : 'Upload Image'}
+              <input type="file" accept="image/*" hidden onChange={handleFileChange} />
+            </Button>
+          </Box>
           <Box sx={{ mt: 2 }}>
             <TextField
               fullWidth
