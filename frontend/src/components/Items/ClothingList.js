@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Card, CardContent, CardMedia, Typography, Box, IconButton } from '@mui/material';
+import { Container, Grid, Card, CardContent, CardMedia, Typography, Box, IconButton, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import AddClothingForm from './AddClothingForm';
 
 function ClothingList() {
+  const [showAddForm, setShowAddForm] = useState(false);
   const [items, setItems] = useState([]);
 
   const fetchItems = async () => {
@@ -42,7 +43,12 @@ function ClothingList() {
 
   return (
     <Container>
-      <AddClothingForm onItemAdded={handleItemAdded} />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <Button variant="contained" color="primary" onClick={() => setShowAddForm(v => !v)}>
+          {showAddForm ? 'Close' : 'Add Item'}
+        </Button>
+      </Box>
+      {showAddForm && <AddClothingForm onItemAdded={handleItemAdded} />}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Your Clothing Items

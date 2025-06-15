@@ -2,10 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navigation/Navbar';
+
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import ClothingList from './components/Items/ClothingList';
+import Outfits from './components/Outfits/Outfits';
+import Dashboard from './components/Dashboard/Dashboard';
+import Profile from './components/Profile/Profile';
+import Navbar from './components/Navigation/Navbar';
 
 const theme = createTheme({
   palette: {
@@ -24,6 +28,7 @@ function App() {
       <AuthProvider>
         <Router>
           <Navbar />
+
           <Routes>
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
@@ -35,7 +40,16 @@ function App() {
              //   </ProtectedRoute>
               } 
             />
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/outfits" element={<Outfits />} />
           </Routes>
         </Router>
       </AuthProvider>

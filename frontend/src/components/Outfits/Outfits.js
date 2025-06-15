@@ -8,9 +8,36 @@ const Outfits = () => {
   const [outfits, setOutfits] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [history, setHistory] = useState([]);
+  const [clothingItems, setClothingItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newOutfit, setNewOutfit] = useState({ name: '', occasion: '', weather: '', notes: '', season: '', style: '' });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+
+  useEffect(() => {
+    fetchOutfits();
+    fetchClothingItems();
+  }, []);
+
+  // Fetch all clothing items for AI suggestions
+  const fetchClothingItems = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/items', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setClothingItems(data);
+      } else {
+        setClothingItems([]);
+      }
+    } catch (error) {
+      setClothingItems([]);
+    }
+  };
 
   useEffect(() => {
     fetchOutfits();
