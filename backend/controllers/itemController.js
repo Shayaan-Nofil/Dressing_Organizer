@@ -4,7 +4,7 @@ exports.addItem = async (req, res) => {
   try {
     const item = await ClothingItem.create({
       ...req.body,
-      user: req.user.id,
+      userId: req.user.id, // Use consistent field name
       dateAdded: new Date()
     });
     res.status(201).json(item);
@@ -15,7 +15,7 @@ exports.addItem = async (req, res) => {
 
 exports.getItems = async (req, res) => {
   try {
-    const items = await ClothingItem.find({ user: req.user.id });
+    const items = await ClothingItem.find({ userId: req.user.id });
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -24,7 +24,15 @@ exports.getItems = async (req, res) => {
 
 exports.deleteItem = async (req, res) => {
   try {
-    await ClothingItem.findByIdAndDelete(req.params.id);
+    const deletedItem = await ClothingItem.findOneAndDelete({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
+    
+    if (!deletedItem) {
+      return res.status(404).json({ error: 'Item not found or access denied' });
+    }
+    
     res.status(200).json({ message: 'Item deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -39,11 +47,21 @@ exports.lifecycleAction = async (req, res) => {
     if (!validActions.includes(action)) {
       return res.status(400).json({ error: 'Invalid action.' });
     }
-    const item = await ClothingItem.findById(req.params.id);
-    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    
+    // Find item and verify ownership
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
+    
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found or access denied' });
+    }
+    
     // Update item status (you may want to add a status field to the schema for production)
     item.recommendation = action.charAt(0).toUpperCase() + action.slice(1);
     await item.save();
+    
     // Log activity if available
     try {
       const Activity = require('../models/Activity');
@@ -54,6 +72,7 @@ exports.lifecycleAction = async (req, res) => {
         message: `${action.charAt(0).toUpperCase() + action.slice(1)} action for item: ${item.name}`
       });
     } catch (e) { /* ignore activity errors */ }
+    
     res.json({ message: 'Action completed.' });
   } catch (err) {
     res.status(500).json({ error: err.message });

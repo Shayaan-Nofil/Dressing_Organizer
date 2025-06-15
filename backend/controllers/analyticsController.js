@@ -6,8 +6,8 @@ exports.getAnalytics = async (req, res) => {
   try {
     // Most/least worn items: based on lastWorn or a wearCount field (not present, so count from outfit history)
     // For now, we'll count how many times each item appears in outfits' history
-    const allOutfits = await Outfit.find({ user: req.user ? req.user._id : undefined }).populate('items');
-    const allItems = await ClothingItem.find({ owner: req.user ? req.user._id : undefined });
+    const allOutfits = await Outfit.find({ userId: req.user.id }).populate('items');
+    const allItems = await ClothingItem.find({ userId: req.user.id });
 
     // --- Most/Least Worn Items ---
     const itemWearCounts = {};

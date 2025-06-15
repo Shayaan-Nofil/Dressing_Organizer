@@ -196,10 +196,10 @@ const OutfitGenerator = ({ onSaveOutfit }) => {
                 <MenuItem value="">
                   <em>Any style</em>
                 </MenuItem>
-                <MenuItem value="boho">Boho</MenuItem>
                 <MenuItem value="minimalist">Minimalist</MenuItem>
                 <MenuItem value="streetwear">Streetwear</MenuItem>
                 <MenuItem value="classic">Classic</MenuItem>
+                <MenuItem value="Fancy">Fancy</MenuItem>
               </Select>
             </FormControl>
           </Grid>

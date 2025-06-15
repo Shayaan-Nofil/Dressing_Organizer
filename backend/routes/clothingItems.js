@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ClothingItem = require('../models/ClothingItem');
+const auth = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -16,20 +17,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Get all clothing items
-router.get('/', async (req, res) => {
+// Get all clothing items for authenticated user
+router.get('/', auth, async (req, res) => {
   try {
-    const items = await ClothingItem.find();
+    const items = await ClothingItem.find({ userId: req.user.id });
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Search/filter items
-router.get('/search', async (req, res) => {
+// Search/filter items for authenticated user
+router.get('/search', auth, async (req, res) => {
   try {
-    const query = {};
+    const query = { userId: req.user.id }; // Always filter by user
     if (req.query.tags) query.tags = { $in: req.query.tags.split(',') };
     if (req.query.color) query.color = req.query.color;
     if (req.query.type) query.type = req.query.type;
@@ -45,22 +46,25 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// Get unused items (not worn for 30+ days)
-router.get('/unused', async (req, res) => {
+// Get unused items (not worn for 30+ days) for authenticated user
+router.get('/unused', auth, async (req, res) => {
   try {
     const threshold = new Date();
     threshold.setDate(threshold.getDate() - 30);
-    const items = await ClothingItem.find({ $or: [ { lastWorn: { $lt: threshold } }, { lastWorn: null } ] });
+    const items = await ClothingItem.find({ 
+      userId: req.user.id,
+      $or: [ { lastWorn: { $lt: threshold } }, { lastWorn: null } ] 
+    });
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Get least-worn items (sorted by lastWorn asc)
-router.get('/least-worn', async (req, res) => {
+// Get least-worn items (sorted by lastWorn asc) for authenticated user
+router.get('/least-worn', auth, async (req, res) => {
   try {
-    const items = await ClothingItem.find().sort({ lastWorn: 1 });
+    const items = await ClothingItem.find({ userId: req.user.id }).sort({ lastWorn: 1 });
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -68,9 +72,9 @@ router.get('/least-worn', async (req, res) => {
 });
 
 // Get wear frequency stats
-router.get('/stats/frequency', async (req, res) => {
+router.get('/stats/frequency', auth, async (req, res) => {
   try {
-    const items = await ClothingItem.find();
+    const items = await ClothingItem.find({ userId: req.user.id });
     const stats = items.map(item => ({
       _id: item._id,
       id: item._id,
@@ -88,14 +92,17 @@ router.get('/stats/frequency', async (req, res) => {
   }
 });
 
-// Get one clothing item
-router.get('/:id', async (req, res) => {
+// Get one clothing item (with ownership check)
+router.get('/:id', auth, async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.id);
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
     if (item) {
       res.json(item);
     } else {
-      res.status(404).json({ message: 'Item not found' });
+      res.status(404).json({ message: 'Item not found or access denied' });
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -103,7 +110,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create clothing item
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', auth, upload.single('image'), async (req, res) => {
   const item = new ClothingItem({
     name: req.body.name,
     type: req.body.type,
@@ -114,6 +121,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     size: req.body.size,
     condition: req.body.condition,
     purchaseDate: req.body.purchaseDate,
+    userId: req.user.id, // Set the owner
     price: req.body.price,
     notes: req.body.notes,
     image: req.file ? req.file.path : null
@@ -128,11 +136,14 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // Update clothing item
-router.patch('/:id', upload.single('image'), async (req, res) => {
+router.patch('/:id', auth, upload.single('image'), async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.id);
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
     if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).json({ message: 'Item not found or access denied' });
     }
 
     // Update fields
@@ -155,11 +166,14 @@ router.patch('/:id', upload.single('image'), async (req, res) => {
 });
 
 // Delete clothing item
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.id);
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
     if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).json({ message: 'Item not found or access denied' });
     }
     await item.remove();
     res.json({ message: 'Item deleted' });
@@ -169,11 +183,14 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Update last worn date
-router.patch('/:id/last-worn', async (req, res) => {
+router.patch('/:id/last-worn', auth, async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.id);
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
     if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).json({ message: 'Item not found or access denied' });
     }
     item.lastWorn = new Date();
     const updatedItem = await item.save();
@@ -184,10 +201,13 @@ router.patch('/:id/last-worn', async (req, res) => {
 });
 
 // Add or update tags
-router.patch('/:id/tags', async (req, res) => {
+router.patch('/:id/tags', auth, async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Item not found' });
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
+    if (!item) return res.status(404).json({ message: 'Item not found or access denied' });
     item.tags = req.body.tags || [];
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -197,10 +217,13 @@ router.patch('/:id/tags', async (req, res) => {
 });
 
 // Mark/unmark as favorite
-router.patch('/:id/favorite', async (req, res) => {
+router.patch('/:id/favorite', auth, async (req, res) => {
   try {
-    const item = await ClothingItem.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Item not found' });
+    const item = await ClothingItem.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
+    if (!item) return res.status(404).json({ message: 'Item not found or access denied' });
     item.favorite = req.body.favorite;
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -212,7 +235,6 @@ router.patch('/:id/favorite', async (req, res) => {
 
 
 // PATCH /:id/lifecycle - Lifecycle action (donate, restyle, replace)
-const auth = require('../middleware/authMiddleware');
 const { lifecycleAction } = require('../controllers/itemController');
 router.patch('/:id/lifecycle', auth, lifecycleAction);
 

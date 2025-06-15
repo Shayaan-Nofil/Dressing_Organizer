@@ -33,8 +33,7 @@ const upload = multer({
 router.post('/share-outfit', auth, async (req, res) => {
   try {
     const { outfitId, platform, caption, privacy = 'public' } = req.body;
-    
-    const outfit = await Outfit.findOne({ _id: outfitId, user: req.user.id })
+      const outfit = await Outfit.findOne({ _id: outfitId, userId: req.user.id })
       .populate('items');
     
     if (!outfit) {
@@ -90,7 +89,7 @@ router.post('/share-item', auth, async (req, res) => {
   try {
     const { itemId, platform, caption, privacy = 'public' } = req.body;
     
-    const item = await ClothingItem.findOne({ _id: itemId, user: req.user.id });
+    const item = await ClothingItem.findOne({ _id: itemId, userId: req.user.id });
     
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
@@ -261,14 +260,13 @@ router.get('/shared/item/:id', async (req, res) => {
 
 // Get user's sharing history
 router.get('/sharing-history', auth, async (req, res) => {
-  try {
-    const outfits = await Outfit.find({ 
-      user: req.user.id, 
+  try {    const outfits = await Outfit.find({ 
+      userId: req.user.id, 
       shares: { $exists: true, $ne: [] }
     }).select('name shares createdAt');
     
     const items = await ClothingItem.find({ 
-      user: req.user.id, 
+      userId: req.user.id, 
       shares: { $exists: true, $ne: [] }
     }).select('name category shares createdAt');
     
@@ -310,7 +308,7 @@ router.delete('/unshare/:type/:id', auth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid type' });
     }
     
-    const doc = await model.findOne({ _id: id, user: req.user.id });
+    const doc = await model.findOne({ _id: id, userId: req.user.id });
     if (!doc) {
       return res.status(404).json({ message: 'Content not found' });
     }

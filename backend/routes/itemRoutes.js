@@ -1,9 +1,13 @@
 // backend/routes/itemRoutes.js
 const express = require('express');
 const router = express.Router();
-const { addItem, getItems, deleteItem } = require('../controllers/itemController');
+const { addItem, getItems, deleteItem, lifecycleAction } = require('../controllers/itemController');
+const auth = require('../middleware/authMiddleware');
 
-router.post('/', addItem);
-router.get('/:userId', getItems);
-router.delete('/:id', deleteItem);
+// All routes require authentication
+router.post('/', auth, addItem);
+router.get('/', auth, getItems);
+router.delete('/:id', auth, deleteItem);
+router.patch('/:id/lifecycle', auth, lifecycleAction);
+
 module.exports = router;

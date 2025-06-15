@@ -37,10 +37,20 @@ const Wardrobe = () => {
   useEffect(() => {
     fetchClothingItems();
   }, []);
-
   const fetchClothingItems = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/clothing-items');
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/clothing-items', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch clothing items: ${response.status}`);
+      }
+      
       const data = await response.json();
       setClothingItems(data);
     } catch (error) {
@@ -91,10 +101,12 @@ const Wardrobe = () => {
       // Debug: log FormData content
       for (let pair of formData.entries()) {
         console.log(pair[0]+ ':', pair[1]);
-      }
-
+      }      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5000/api/clothing-items', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
 
@@ -129,8 +141,7 @@ const Wardrobe = () => {
   };
 
   const handleLastWorn = async (itemId) => {
-    const today = new Date().toISOString().split('T')[0];
-    try {
+    const today = new Date().toISOString().split('T')[0];    try {
       // For development, simulate API call
       setClothingItems(prev =>
         prev.map(item => 
@@ -140,23 +151,20 @@ const Wardrobe = () => {
         )
       );
 
-      // In production, uncomment this:
-      /*
-      const response = await fetch(`http://localhost:5000/api/clothing-items/${itemId}`, {
+      // In production, use this API call:
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/clothing-items/${itemId}/last-worn`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ lastWorn: today }),
+        body: JSON.stringify({ lastWorn: today })
       });
-
-      if (response.ok) {
-        const updatedItem = await response.json();
-        setClothingItems(prev =>
-          prev.map(item => (item.id === itemId ? updatedItem : item))
-        );
+      
+      if (!response.ok) {
+        console.error('Failed to update last worn date:', response.status);
       }
-      */
     } catch (error) {
       console.error('Error updating last worn date:', error);
     }
