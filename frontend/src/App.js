@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -47,10 +47,9 @@ function App() {
 
 function MainRoutes() {
   const { user, loading } = useAuth();
-  // Get current path
-  const path = window.location.pathname;
+  const location = useLocation();
   // Show Navbar on all pages except login and register
-  const showNavbar = path !== '/login' && path !== '/register';
+  const showNavbar = location.pathname !== '/login' && location.pathname !== '/register';
 
   if (loading) return <div>Loading...</div>;
 

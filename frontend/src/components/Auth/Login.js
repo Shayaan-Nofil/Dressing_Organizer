@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { 
   TextField, 
   Button, 
@@ -121,6 +122,7 @@ function Login() {
     password: ''
   });
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -131,8 +133,8 @@ function Login() {
     setLoading(true);
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      // Use the login function from AuthContext to update state
+      login(response.data.user, response.data.token);
       navigate('/');
     } catch (error) {
       setError(error.response?.data?.message || 'Login failed.');

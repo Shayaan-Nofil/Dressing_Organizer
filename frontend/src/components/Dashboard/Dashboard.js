@@ -189,6 +189,15 @@ const WeatherCard = styled(Box)(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
   boxShadow: '0 20px 40px rgba(102, 126, 234, 0.3)',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    transform: 'translateY(-8px)',
+    boxShadow: '0 24px 48px rgba(102, 126, 234, 0.4)',
+  },
   '&::before': {
     content: '""',
     position: 'absolute',
@@ -449,230 +458,235 @@ function Dashboard() {
 
         {/* Main Content Container - Centered and Width-Matched */}
         <Box sx={{ 
-          maxWidth: '1200px', 
+          maxWidth: '1300px', 
           mx: 'auto', 
           width: '100%',
           px: { xs: 2, sm: 3, md: 0 }
         }}>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Weather Card */}
           <Grid item xs={12} md={4}>
+            <Box sx={{ height: '100%' }}>
               <WeatherCard>
-            {weatherLoading ? (
-              <CircularProgress color="inherit" />
-            ) : (
-              <>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
-                  <LocationOnIcon />
-                  <Typography variant="body2">{location}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                  {getWeatherIcon(weather?.condition)}
-                </Box>
-                <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
-                  {weather?.temp}°C
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 1, textTransform: 'capitalize' }}>
-                  {weather?.description}
-                </Typography>
-                <Grid container spacing={1} sx={{ mt: 2 }}>
-                  <Grid item xs={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="caption">Feels like</Typography>
-                      <Typography variant="body2" fontWeight="bold">{weather?.feelsLike}°</Typography>
+                {weatherLoading ? (
+                  <CircularProgress color="inherit" />
+                ) : (
+                  <>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                      <LocationOnIcon />
+                      <Typography variant="body2">{location}</Typography>
                     </Box>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="caption">Humidity</Typography>
-                      <Typography variant="body2" fontWeight="bold">{weather?.humidity}%</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                      {getWeatherIcon(weather?.condition)}
                     </Box>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="caption">Wind</Typography>
-                      <Typography variant="body2" fontWeight="bold">{weather?.windSpeed?.toFixed(1)} m/s</Typography>
-                    </Box>
-                  </Grid>
-                  {weather?.uvIndex > 0 && (
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="caption">UV Index</Typography>
-                        <Typography variant="body2" fontWeight="bold">{weather?.uvIndex}</Typography>
-                      </Box>
+                    <Typography variant="h3" fontWeight="bold" sx={{ mb: 1 }}>
+                      {weather?.temp}°C
+                    </Typography>
+                    <Typography variant="h6" sx={{ mb: 1, textTransform: 'capitalize' }}>
+                      {weather?.description}
+                    </Typography>
+                    <Grid container spacing={1} sx={{ mt: 2 }}>
+                      <Grid item xs={4}>
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption">Feels like</Typography>
+                          <Typography variant="body2" fontWeight="bold">{weather?.feelsLike}°</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption">Humidity</Typography>
+                          <Typography variant="body2" fontWeight="bold">{weather?.humidity}%</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Typography variant="caption">Wind</Typography>
+                          <Typography variant="body2" fontWeight="bold">{weather?.windSpeed?.toFixed(1)} m/s</Typography>
+                        </Box>
+                      </Grid>
+                      {weather?.uvIndex > 0 && (
+                        <Grid item xs={6}>
+                          <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="caption">UV Index</Typography>
+                            <Typography variant="body2" fontWeight="bold">{weather?.uvIndex}</Typography>
+                          </Box>
+                        </Grid>
+                      )}
+                      {weather?.visibility > 0 && (
+                        <Grid item xs={6}>
+                          <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="caption">Visibility</Typography>
+                            <Typography variant="body2" fontWeight="bold">{(weather?.visibility / 1000).toFixed(1)} km</Typography>
+                          </Box>
+                        </Grid>
+                      )}
                     </Grid>
-                  )}
-                  {weather?.visibility > 0 && (
-                    <Grid item xs={6}>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="caption">Visibility</Typography>
-                        <Typography variant="body2" fontWeight="bold">{(weather?.visibility / 1000).toFixed(1)} km</Typography>
-                      </Box>
-                    </Grid>
-                  )}
+                  </>
+                )}
+              </WeatherCard>
+            </Box>
+          </Grid>
+
+          {/* Wardrobe Stats */}
+          <Grid item xs={12} md={4}>
+            <DashboardCard sx={{ height: '100%' }}>
+              <Typography 
+                variant="h5" 
+                fontWeight={700} 
+                gutterBottom
+                sx={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  mb: 3
+                }}
+              >
+                Wardrobe Overview
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <StatsCard>
+                    <Avatar sx={{ 
+                      bgcolor: 'transparent',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      width: 48, 
+                      height: 48,
+                      mb: 1,
+                      boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
+                    }}>
+                      <CheckroomIcon sx={{ fontSize: 24 }} />
+                    </Avatar>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: 'primary.main', mb: 0.5 }}>
+                      {stats.totalItems}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      Items
+                    </Typography>
+                  </StatsCard>
                 </Grid>
-              </>
-            )}
-          </WeatherCard>
-        </Grid>
+                <Grid item xs={6}>
+                  <StatsCard>
+                    <Avatar sx={{ 
+                      bgcolor: 'transparent',
+                      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                      width: 48, 
+                      height: 48,
+                      mb: 1,
+                      boxShadow: '0 8px 24px rgba(240, 147, 251, 0.3)'
+                    }}>
+                      <StyleIcon sx={{ fontSize: 24 }} />
+                    </Avatar>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: 'secondary.main', mb: 0.5 }}>
+                      {stats.totalOutfits}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      Outfits
+                    </Typography>
+                  </StatsCard>
+                </Grid>
+                <Grid item xs={6}>
+                  <StatsCard>
+                    <Avatar sx={{ 
+                      bgcolor: 'transparent',
+                      background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                      width: 48, 
+                      height: 48,
+                      mb: 1,
+                      boxShadow: '0 8px 24px rgba(252, 182, 159, 0.3)'
+                    }}>
+                      <FavoriteIcon sx={{ fontSize: 24, color: '#d84315' }} />
+                    </Avatar>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: 'warning.main', mb: 0.5 }}>
+                      {stats.favoriteItems}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      Favorites
+                    </Typography>
+                  </StatsCard>
+                </Grid>
+                <Grid item xs={6}>
+                  <StatsCard>
+                    <Avatar sx={{ 
+                      bgcolor: 'transparent',
+                      background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                      width: 48, 
+                      height: 48,
+                      mb: 1,
+                      boxShadow: '0 8px 24px rgba(168, 237, 234, 0.3)'
+                    }}>
+                      <TrendingUpIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
+                    </Avatar>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: 'success.main', mb: 0.5 }}>
+                      {stats.categories}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      Categories
+                    </Typography>
+                  </StatsCard>
+                </Grid>
+              </Grid>
+            </DashboardCard>
+          </Grid>
 
-        {/* Wardrobe Stats */}
-        <Grid item xs={12} md={8}>
-          <DashboardCard>
-            <Typography 
-              variant="h5" 
-              fontWeight={700} 
-              gutterBottom
-              sx={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 3
-              }}
-            >
-              Wardrobe Overview
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={6} sm={3}>
-                <StatsCard>
-                  <Avatar sx={{ 
-                    bgcolor: 'transparent',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    width: 56, 
-                    height: 56,
-                    mb: 2,
-                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
-                  }}>
-                    <CheckroomIcon sx={{ fontSize: 28 }} />
-                  </Avatar>
-                  <Typography variant="h3" fontWeight={800} sx={{ color: 'primary.main', mb: 0.5 }}>
-                    {stats.totalItems}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                    Items
-                  </Typography>
-                </StatsCard>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <StatsCard>
-                  <Avatar sx={{ 
-                    bgcolor: 'transparent',
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                    width: 56, 
-                    height: 56,
-                    mb: 2,
-                    boxShadow: '0 8px 24px rgba(240, 147, 251, 0.3)'
-                  }}>
-                    <StyleIcon sx={{ fontSize: 28 }} />
-                  </Avatar>
-                  <Typography variant="h3" fontWeight={800} sx={{ color: 'secondary.main', mb: 0.5 }}>
-                    {stats.totalOutfits}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                    Outfits
-                  </Typography>
-                </StatsCard>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <StatsCard>
-                  <Avatar sx={{ 
-                    bgcolor: 'transparent',
-                    background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-                    width: 56, 
-                    height: 56,
-                    mb: 2,
-                    boxShadow: '0 8px 24px rgba(252, 182, 159, 0.3)'
-                  }}>
-                    <FavoriteIcon sx={{ fontSize: 28, color: '#d84315' }} />
-                  </Avatar>
-                  <Typography variant="h3" fontWeight={800} sx={{ color: 'warning.main', mb: 0.5 }}>
-                    {stats.favoriteItems}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                    Favorites
-                  </Typography>
-                </StatsCard>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <StatsCard>
-                  <Avatar sx={{ 
-                    bgcolor: 'transparent',
-                    background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-                    width: 56, 
-                    height: 56,
-                    mb: 2,
-                    boxShadow: '0 8px 24px rgba(168, 237, 234, 0.3)'
-                  }}>
-                    <TrendingUpIcon sx={{ fontSize: 28, color: '#2e7d32' }} />
-                  </Avatar>
-                  <Typography variant="h3" fontWeight={800} sx={{ color: 'success.main', mb: 0.5 }}>
-                    {stats.categories}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                    Categories
-                  </Typography>
-                </StatsCard>
-              </Grid>
-            </Grid>
-          </DashboardCard>
-        </Grid>
-
-        {/* Recent Outfits */}
-        <Grid item xs={12} md={4}>
-          <DashboardCard>
-            <Typography 
-              variant="h5" 
-              fontWeight={700} 
-              gutterBottom
-              sx={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                mb: 3
-              }}
-            >
-              Recent Outfits
-            </Typography>
-            {allOutfits.length > 0 ? (
-              <Box>
-                {allOutfits.slice(0, 3).map((outfit, index) => (
-                  <Box key={outfit._id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Box
-                      component="img"
-                      src={getOutfitImageUrl(outfit) || getPlaceholderImage(60, 60)}
-                      alt={outfit.name}
-                      sx={{ width: 60, height: 60, borderRadius: 2, objectFit: 'cover', mr: 2 }}
-                    />
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="subtitle2">{outfit.name}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {outfit.items?.length || 0} items • Created {new Date(outfit.createdAt).toLocaleDateString()}
-                      </Typography>
-                    </Box>
+          {/* Recent Outfits */}
+          <Grid item xs={12} md={4}>
+            <DashboardCard sx={{ height: '100%' }}>
+              <Typography 
+                variant="h5" 
+                fontWeight={700} 
+                gutterBottom
+                sx={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  mb: 3
+                }}
+              >
+                Recent Outfits
+              </Typography>
+              {allOutfits.length > 0 ? (
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ flex: 1 }}>
+                    {allOutfits.slice(0, 3).map((outfit, index) => (
+                      <Box key={outfit._id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <Box
+                          component="img"
+                          src={getOutfitImageUrl(outfit) || getPlaceholderImage(60, 60)}
+                          alt={outfit.name}
+                          sx={{ width: 60, height: 60, borderRadius: 2, objectFit: 'cover', mr: 2 }}
+                        />
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography variant="subtitle2">{outfit.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {outfit.items?.length || 0} items • Created {new Date(outfit.createdAt).toLocaleDateString()}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
                   </Box>
-                ))}
-                <Button fullWidth variant="outlined" onClick={() => navigate('/outfits')} sx={{ mt: 2 }}>
-                  View All Outfits
-                </Button>
-              </Box>
-            ) : (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <StyleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  No outfits created yet
-                </Typography>
-                <Button variant="contained" onClick={() => navigate('/outfits')}>
-                  Create Your First Outfit
-                </Button>
-              </Box>
-            )}
-          </DashboardCard>
+                  <Button fullWidth variant="outlined" onClick={() => navigate('/outfits')} sx={{ mt: 'auto' }}>
+                    View All Outfits
+                  </Button>
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 4, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <StyleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    No outfits created yet
+                  </Typography>
+                  <Button variant="contained" onClick={() => navigate('/outfits')}>
+                    Create Your First Outfit
+                  </Button>
+                </Box>
+              )}
+            </DashboardCard>
+          </Grid>
         </Grid>
 
         {/* Quick Actions - Full Width Horizontal Layout */}
-        <Grid item xs={12}>
+        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem'}}>
           <DashboardCard sx={{ 
             py: 4, 
             minHeight: 'auto',
@@ -913,37 +927,38 @@ function Dashboard() {
           </DashboardCard>
         </Grid>
 
+        
+
         {/* Trends Feed */}
         <Grid item xs={12}>
           <DashboardCard>
             <TrendsFeed userItems={allItems} />
           </DashboardCard>
         </Grid>
-      </Grid>
-      </Box>
+        </Box>
 
-      {/* Floating Action Button for Quick Add */}
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ 
-          position: 'fixed', 
-          bottom: 24, 
-          right: 24,
-          borderRadius: 4,
-          width: 64,
-          height: 64,
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
-          '&:hover': {
-            transform: 'scale(1.1)',
-            boxShadow: '0 12px 40px rgba(102, 126, 234, 0.5)',
-          }
-        }}
-        onClick={() => navigate('/clothes')}
-      >
-        <AddIcon sx={{ fontSize: 28 }} />
-      </Fab>
+        {/* Floating Action Button for Quick Add */}
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{ 
+            position: 'fixed', 
+            bottom: 24, 
+            right: 24,
+            borderRadius: 4,
+            width: 64,
+            height: 64,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
+            '&:hover': {
+              transform: 'scale(1.1)',
+              boxShadow: '0 12px 40px rgba(102, 126, 234, 0.5)',
+            }
+          }}
+          onClick={() => navigate('/clothes')}
+        >
+          <AddIcon sx={{ fontSize: 28 }} />
+        </Fab>
       </Container>
     </Box>
   );
