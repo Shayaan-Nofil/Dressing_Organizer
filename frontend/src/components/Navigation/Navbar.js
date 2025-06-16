@@ -179,7 +179,7 @@ function Navbar() {
           {isMobile && (
             <IconButton
               edge="start"
-              color="inherit"
+              color={modernBlue.primary}
               aria-label="menu"
               onClick={() => setMobileMenuOpen(true)}
               sx={{ 
