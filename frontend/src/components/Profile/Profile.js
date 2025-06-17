@@ -357,13 +357,6 @@ function Profile() {
     }));
   };
 
-  // Helper: get initials
-  const getInitials = (name) => {
-    if (!name) return '';
-    const parts = name.split(' ');
-    return parts.map(p => p[0]).join('').toUpperCase();
-  };
-
   // Render loading/error states
   if (loading) {
     return (

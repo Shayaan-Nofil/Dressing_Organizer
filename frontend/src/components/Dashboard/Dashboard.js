@@ -120,66 +120,6 @@ const StatsCard = styled(Box)(({ theme }) => ({
   }
 }));
 
-const WeatherIcon = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 80,
-  height: 80,
-  borderRadius: 24,
-  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1))',
-  backdropFilter: 'blur(10px)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  color: 'white',
-  marginBottom: theme.spacing(2),
-  '& .MuiSvgIcon-root': {
-    fontSize: '2.5rem'
-  }
-}));
-
-const OutfitCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  borderRadius: 20,
-  overflow: 'hidden',
-  background: theme.palette.mode === 'dark' 
-    ? 'rgba(255, 255, 255, 0.02)' 
-    : 'rgba(255, 255, 255, 0.9)',
-  backdropFilter: 'blur(20px)',
-  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-  boxShadow: theme.palette.mode === 'dark' 
-    ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
-    : '0 8px 32px rgba(0, 0, 0, 0.08)',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  '&:hover': {
-    transform: 'translateY(-8px)',
-    boxShadow: theme.palette.mode === 'dark' 
-      ? '0 20px 40px rgba(0, 0, 0, 0.4)' 
-      : '0 20px 40px rgba(0, 0, 0, 0.12)',
-  }
-}));
-
-const ActivityItem = styled(ListItem)(({ theme }) => ({
-  padding: theme.spacing(2, 2.5),
-  borderRadius: 16,
-  marginBottom: theme.spacing(1.5),
-  background: theme.palette.mode === 'dark' 
-    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))' 
-    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4))',
-  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-  boxShadow: theme.palette.mode === 'dark' 
-    ? '0 4px 20px rgba(0, 0, 0, 0.2)' 
-    : '0 4px 20px rgba(0, 0, 0, 0.06)',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  '&:hover': {
-    transform: 'translateX(8px)',
-    boxShadow: theme.palette.mode === 'dark' 
-      ? '0 8px 30px rgba(0, 0, 0, 0.3)' 
-      : '0 8px 30px rgba(0, 0, 0, 0.1)',
-  }
-}));
-
 const WeatherCard = styled(Box)(({ theme }) => ({
   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   color: 'white',
@@ -207,21 +147,6 @@ const WeatherCard = styled(Box)(({ theme }) => ({
     bottom: 0,
     background: 'radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.2), transparent 50%)',
     pointerEvents: 'none'
-  }
-}));
-
-const StatsItem = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: 12,
-  display: 'flex',
-  alignItems: 'center',
-  gap: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.divider}`,
-  transition: 'all 0.2s',
-  '&:hover': {
-    transform: 'translateX(4px)',
-    borderColor: theme.palette.primary.main
   }
 }));
 
