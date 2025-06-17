@@ -126,10 +126,43 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    email: '',
+    password: ''
+  });
+
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.com$/;
+    if (!email) return 'Email is required';
+    if (!emailRegex.test(email)) return 'Email must end with @----.com';
+    return '';
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return 'Password is required';
+    if (password.length < 6) return 'Password must be at least 6 characters long';
+    return '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // Validate inputs
+    const emailError = validateEmail(formData.email);
+    const passwordError = validatePassword(formData.password);
+    
+    setValidationErrors({
+      email: emailError,
+      password: passwordError
+    });
+    
+    // If there are validation errors, don't submit
+    if (emailError || passwordError) {
+      return;
+    }
+    
     setLoading(true);
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', formData);
@@ -144,8 +177,20 @@ function Login() {
   };
 
   const handleInputChange = (field) => (e) => {
-    setFormData({ ...formData, [field]: e.target.value });
-    if (error) setError(''); // Clear error on input change
+    const value = e.target.value;
+    setFormData({ ...formData, [field]: value });
+    
+    // Clear general error on input change
+    if (error) setError('');
+    
+    // Validate on change and clear field-specific errors
+    if (field === 'email') {
+      const emailError = validateEmail(value);
+      setValidationErrors(prev => ({ ...prev, email: emailError }));
+    } else if (field === 'password') {
+      const passwordError = validatePassword(value);
+      setValidationErrors(prev => ({ ...prev, password: passwordError }));
+    }
   };
 
   return (
@@ -208,6 +253,8 @@ function Login() {
             autoFocus
             value={formData.email}
             onChange={handleInputChange('email')}
+            error={!!validationErrors.email}
+            helperText={validationErrors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -226,6 +273,8 @@ function Login() {
             autoComplete="current-password"
             value={formData.password}
             onChange={handleInputChange('password')}
+            error={!!validationErrors.password}
+            helperText={validationErrors.password}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

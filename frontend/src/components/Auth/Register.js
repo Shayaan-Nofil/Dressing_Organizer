@@ -135,7 +135,31 @@ function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
   const navigate = useNavigate();
+
+  // Validation functions
+  const validateName = (name) => {
+    if (!name || name.trim().length === 0) return 'Name is required';
+    return '';
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.com$/;
+    if (!email) return 'Email is required';
+    if (!emailRegex.test(email)) return 'Email must end with @----.com';
+    return '';
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return 'Password is required';
+    if (password.length < 6) return 'Password must be at least 6 characters long';
+    return '';
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -143,6 +167,18 @@ function Register() {
       setFormData({ ...formData, measurements: { ...formData.measurements, [name]: value } });
     } else {
       setFormData({ ...formData, [name]: value });
+      
+      // Validate on change for main fields
+      if (name === 'name') {
+        const nameError = validateName(value);
+        setValidationErrors(prev => ({ ...prev, name: nameError }));
+      } else if (name === 'email') {
+        const emailError = validateEmail(value);
+        setValidationErrors(prev => ({ ...prev, email: emailError }));
+      } else if (name === 'password') {
+        const passwordError = validatePassword(value);
+        setValidationErrors(prev => ({ ...prev, password: passwordError }));
+      }
     }
     if (error) setError(''); // Clear error on input change
   };
@@ -151,6 +187,23 @@ function Register() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    
+    // Validate inputs
+    const nameError = validateName(formData.name);
+    const emailError = validateEmail(formData.email);
+    const passwordError = validatePassword(formData.password);
+    
+    setValidationErrors({
+      name: nameError,
+      email: emailError,
+      password: passwordError
+    });
+    
+    // If there are validation errors, don't submit
+    if (nameError || emailError || passwordError) {
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -268,6 +321,8 @@ function Register() {
                   autoFocus
                   value={formData.name}
                   onChange={handleChange}
+                  error={!!validationErrors.name}
+                  helperText={validationErrors.name}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -287,6 +342,8 @@ function Register() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
+                  error={!!validationErrors.email}
+                  helperText={validationErrors.email}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -306,6 +363,8 @@ function Register() {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
+                  error={!!validationErrors.password}
+                  helperText={validationErrors.password}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
